@@ -3,6 +3,8 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"znews/app/middleware"
+	"znews/app/model"
 	"znews/app/service"
 
 	"github.com/gin-gonic/gin"
@@ -10,11 +12,7 @@ import (
 
 type UsersController struct{}
 
-func NewUsersController() UsersController {
-	return UsersController{}
-}
-
-func QueryUsersController() UsersController {
+func UserController() UsersController {
 	return UsersController{}
 }
 
@@ -22,6 +20,53 @@ type Register struct {
 	Account  string `json:"account" binding:"required" example:"account"`
 	Password string `json:"password" binding:"required" example:"password"`
 	Email    string `json:"email" binding:"required" example:"test123@gmail.com"`
+}
+
+func (u UsersController) AuthHandler(c *gin.Context) {
+	var form model.User
+	bindErr := c.BindJSON(&form)
+	if bindErr != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "Invalid params",
+		})
+		return
+	}
+
+	userOne, err := service.LoginOneUser(form.Account, form.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Failed to parse params" + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	if userOne == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": -1,
+			"msg":    "User not found",
+			"data":   nil,
+		})
+		return
+	}
+
+	if userOne != nil {
+		tokenString, _ := middleware.GenToken(form.Account)
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": gin.H{"token": tokenString},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"msg":  "Verified Failed.",
+	})
+
 }
 
 func (u UsersController) CreateUser(c *gin.Context) {

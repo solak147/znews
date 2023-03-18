@@ -43,3 +43,13 @@ func CheckOneUser(account string) bool {
 	}
 	return result
 }
+
+func LoginOneUser(account string, password string) (*model.User, error) {
+	userOne := &model.User{}
+	err := dao.SqlSession.Select(UserFields).Where("account=? and password=?", account, password).First(&userOne).Error
+	if err != nil {
+		return nil, err
+	} else {
+		return userOne, nil
+	}
+}
