@@ -10,6 +10,20 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title Gin swagger
+// @version 1.8.10
+// @description Gin swagger
+
+// @contact.name kevin
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// schemes http
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	envErr := godotenv.Load()
 	if envErr != nil {
@@ -28,12 +42,8 @@ func main() {
 	}
 
 	server := gin.Default()
-	server.GET("/hc", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "health check",
-		})
-	})
-	config.RouteUsers(server)
+
+	config.CustomRouter(server)
 	err := server.Run(":" + port)
 	if err != nil {
 		panic(err)

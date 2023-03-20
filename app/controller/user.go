@@ -8,6 +8,7 @@ import (
 	"znews/app/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gogf/gf/i18n/gi18n"
 )
 
 type UsersController struct{}
@@ -22,6 +23,13 @@ type Register struct {
 	Email    string `json:"email" binding:"required" example:"test123@gmail.com"`
 }
 
+// AuthHandler @Summary
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @param login body model.User true "登入成功回傳 token"
+// @Success 200 string successful return token
+// @Router /login [post]
 func (u UsersController) AuthHandler(c *gin.Context) {
 	var form model.User
 	bindErr := c.BindJSON(&form)
@@ -70,6 +78,13 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 }
 
 func (u UsersController) CreateUser(c *gin.Context) {
+	t := gi18n.New()
+	lan := c.Request.Header.Get("language")
+	if lan == "" {
+		lan = "zh"
+	}
+	t.SetLanguage(lan)
+
 	var form Register
 	bindErr := c.BindJSON(&form)
 
@@ -78,7 +93,7 @@ func (u UsersController) CreateUser(c *gin.Context) {
 		if err == nil {
 			c.JSON(http.StatusOK, gin.H{
 				"status": 1,
-				"msg":    "success Register",
+				"msg":    t.Translate(c, "Response_Success"),
 				"data":   nil,
 			})
 		} else {
@@ -97,6 +112,14 @@ func (u UsersController) CreateUser(c *gin.Context) {
 	}
 }
 
+// GetUser GetUser @Summary
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param id path int true "id" default(1)
+// @Success 200 string string successful return data
+// @Router /v1/users/{id} [get]
 func (u UsersController) GetUser(c *gin.Context) {
 	id := c.Params.ByName("id")
 
