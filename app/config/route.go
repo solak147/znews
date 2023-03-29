@@ -1,17 +1,22 @@
 package config
 
 import (
+	"time"
 	_ "znews/docs"
 
 	"znews/app/controller"
 	"znews/app/middleware"
 
+	cache "github.com/chenyahui/gin-cache"
+	"github.com/chenyahui/gin-cache/persist"
 	"github.com/gin-gonic/gin"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func CustomRouter(r *gin.Engine) {
+func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
+
 	r.Use(corsMiddleware())
 
 	posts := r.Group("/v1/users")
@@ -20,10 +25,10 @@ func CustomRouter(r *gin.Engine) {
 		posts.GET("/", controller.UserController().GetUser)
 	}
 
-	login := r.Group("/login")
+	login := r.Group("/member")
 	{
-		login.POST("/", controller.UserController().AuthHandler)
-		login.GET("/:id", middleware.JWTAuthMiddleware(), controller.UserController().GetUser)
+		login.POST("/login", controller.UserController().Login)
+		login.GET("/:id", middleware.JWTAuthMiddleware(), cache.CacheByRequestURI(m, 2*time.Hour), controller.UserController().GetUser)
 	}
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")

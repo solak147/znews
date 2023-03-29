@@ -23,13 +23,6 @@ type Register struct {
 	Email    string `json:"email" binding:"required" example:"test123@gmail.com"`
 }
 
-// AuthHandler @Summary
-// @Tags user
-// @version 1.0
-// @produce application/json
-// @param login body model.User true "登入成功回傳 token"
-// @Success 200 string successful return token
-// @Router /login [post]
 func (u UsersController) AuthHandler(c *gin.Context) {
 	var form model.User
 	bindErr := c.BindJSON(&form)
@@ -41,7 +34,7 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 		return
 	}
 
-	userOne, err := service.LoginOneUser(form.Account, form.Password)
+	userOne, err := service.GetUser(form.Account, form.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
@@ -74,6 +67,48 @@ func (u UsersController) AuthHandler(c *gin.Context) {
 		"code": 0,
 		"msg":  "Verified Failed.",
 	})
+
+}
+
+// @Summary 登入
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @param login body model.Login true "登入成功回傳 token"
+// @Success 200 string successful return token
+// @Router /member/login [post]
+func (u UsersController) Login(c *gin.Context) {
+	var form model.Login
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
+		return
+	}
+
+	user, err := service.GetUser(form.Account, form.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Failed to parse params" + err.Error(),
+			"data":   nil,
+		})
+		return
+	}
+
+	if user == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"status": -1,
+			"msg":    "User not found",
+			"data":   nil,
+		})
+
+	} else {
+		tokenString, _ := middleware.GenToken(form.Account)
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": gin.H{"token": tokenString},
+		})
+	}
 
 }
 

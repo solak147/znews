@@ -21,7 +21,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/login": {
+        "/member/login": {
             "post": {
                 "produces": [
                     "application/json"
@@ -29,6 +29,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
+                "summary": "登入",
                 "parameters": [
                     {
                         "description": "登入成功回傳 token",
@@ -36,7 +37,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.User"
+                            "$ref": "#/definitions/model.Login"
                         }
                     }
                 ],
@@ -85,8 +86,18 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "model.User": {
-            "type": "object"
+        "model.Login": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string",
+                    "example": "kevin"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                }
+            }
         }
     },
     "securityDefinitions": {

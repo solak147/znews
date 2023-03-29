@@ -6,7 +6,9 @@ import (
 	"znews/app/dao"
 	"znews/app/model"
 
+	"github.com/chenyahui/gin-cache/persist"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 )
 
@@ -43,7 +45,14 @@ func main() {
 
 	server := gin.Default()
 
-	config.CustomRouter(server)
+	redisStore := persist.NewRedisStore(redis.NewClient(&redis.Options{
+		Network: "tcp",
+		Addr:    "redis:6379",
+		DB:      0,
+	}))
+
+	config.CustomRouter(server, redisStore)
+
 	err := server.Run(":" + port)
 	if err != nil {
 		panic(err)

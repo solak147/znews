@@ -1,5 +1,12 @@
 definitions:
-  model.User:
+  model.Login:
+    properties:
+      account:
+        example: kevin
+        type: string
+      password:
+        example: "123456"
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -12,7 +19,7 @@ info:
   title: Gin swagger
   version: 1.8.10
 paths:
-  /login:
+  /member/login:
     post:
       parameters:
       - description: 登入成功回傳 token
@@ -20,7 +27,7 @@ paths:
         name: login
         required: true
         schema:
-          $ref: '#/definitions/model.User'
+          $ref: '#/definitions/model.Login'
       produces:
       - application/json
       responses:
@@ -28,6 +35,7 @@ paths:
           description: OK
           schema:
             type: string
+      summary: 登入
       tags:
       - user
   /v1/users/{id}:
