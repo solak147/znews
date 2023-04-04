@@ -21,3 +21,7 @@ type Login struct {
 	Account  string `form:"account"  example:"kevin"`
 	Password string `form:"password"  example:"123456"`
 }
+
+type RegisterStep1 struct {
+	Email string `form:"email"  example:"kevin@gmail.com"`
+}

@@ -19,7 +19,7 @@ func SelectOneUsers(id int64) (*model.User, error) {
 }
 
 func RegisterOneUser(account string, password string, email string) error {
-	if !CheckOneUser(account) {
+	if !CheckUserExit(account) {
 		return fmt.Errorf("User exists.")
 	}
 	user := model.User{
@@ -31,7 +31,7 @@ func RegisterOneUser(account string, password string, email string) error {
 	return insertErr
 }
 
-func CheckOneUser(account string) bool {
+func CheckUserExit(account string) bool {
 	result := false
 	var user model.User
 

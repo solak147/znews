@@ -1,8 +1,10 @@
 package controller
 
 import (
+	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 	"znews/app/middleware"
 	"znews/app/model"
 	"znews/app/service"
@@ -23,50 +25,47 @@ type Register struct {
 	Email    string `json:"email" binding:"required" example:"test123@gmail.com"`
 }
 
-func (u UsersController) AuthHandler(c *gin.Context) {
-	var form model.User
-	bindErr := c.BindJSON(&form)
-	if bindErr != nil {
-		c.JSON(http.StatusOK, gin.H{
-			"code": -1,
-			"msg":  "Invalid params",
-		})
+// @Summary 註冊 Step1
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @param register body model.RegisterStep1 true "檢查帳號是否已存在"
+// @Success 200 boolean successful return boolean
+// @Router /member/registerStep1 [post]
+func (u UsersController) CheckUserExit(c *gin.Context) {
+	var form model.RegisterStep1
+
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
 		return
 	}
 
-	userOne, err := service.GetUser(form.Account, form.Password)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Failed to parse params" + err.Error(),
-			"data":   nil,
-		})
-		return
-	}
+	if service.CheckUserExit(form.Email) {
 
-	if userOne == nil {
-		c.JSON(http.StatusNotFound, gin.H{
-			"status": -1,
-			"msg":    "User not found",
-			"data":   nil,
-		})
-		return
-	}
+		// 設定隨機種子
+		rand.Seed(time.Now().UnixNano())
 
-	if userOne != nil {
-		tokenString, _ := middleware.GenToken(form.Account)
+		// 產生 6 個隨機數字
+		var validCode string
+		for len(validCode) < 6 {
+			num := rand.Intn(9) + 1 // 產生 1 到 9 之間的隨機整數
+			validCode += strconv.Itoa(num)
+		}
+
+		service.Send(validCode+"是您的驗證碼", "請在網頁上輸入您的驗證碼，此為系統自動發送的信件。", form.Email)
+
 		c.JSON(http.StatusOK, gin.H{
 			"code": 0,
 			"msg":  "Success",
-			"data": gin.H{"token": tokenString},
+			"data": validCode,
 		})
-		return
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Account has exit",
+			"data":   nil,
+		})
 	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"code": 0,
-		"msg":  "Verified Failed.",
-	})
 
 }
 

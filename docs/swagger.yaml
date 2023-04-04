@@ -8,6 +8,12 @@ definitions:
         example: "123456"
         type: string
     type: object
+  model.RegisterStep1:
+    properties:
+      account:
+        example: kevin
+        type: string
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -36,6 +42,25 @@ paths:
           schema:
             type: string
       summary: 登入
+      tags:
+      - user
+  /member/registerStep1:
+    post:
+      parameters:
+      - description: 檢查帳號是否已存在
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterStep1'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: 註冊 Step1
       tags:
       - user
   /v1/users/{id}:

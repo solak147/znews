@@ -51,6 +51,36 @@ const docTemplate = `{
                 }
             }
         },
+        "/member/registerStep1": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "註冊 Step1",
+                "parameters": [
+                    {
+                        "description": "檢查帳號是否已存在",
+                        "name": "register",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RegisterStep1"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/{id}": {
             "get": {
                 "security": [
@@ -96,6 +126,15 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "123456"
+                }
+            }
+        },
+        "model.RegisterStep1": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string",
+                    "example": "kevin"
                 }
             }
         }

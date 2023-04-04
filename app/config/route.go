@@ -27,6 +27,8 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
 	login := r.Group("/member")
 	{
+		login.POST("/registerStep1", controller.UserController().CheckUserExit)
+
 		login.POST("/login", controller.UserController().Login)
 		login.GET("/:id", middleware.JWTAuthMiddleware(), cache.CacheByRequestURI(m, 2*time.Hour), controller.UserController().GetUser)
 	}
