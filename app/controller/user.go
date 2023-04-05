@@ -10,7 +10,6 @@ import (
 	"znews/app/service"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gogf/gf/i18n/gi18n"
 )
 
 type UsersController struct{}
@@ -69,6 +68,38 @@ func (u UsersController) CheckUserExit(c *gin.Context) {
 
 }
 
+// @Summary 註冊 Step3
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @param register body model.RegisterStep3 true "註冊帳號"
+// @Success 200 boolean successful return boolean
+// @Router /member/registerStep3 [post]
+func (u UsersController) Register(c *gin.Context) {
+	var form model.RegisterStep3
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
+		return
+	}
+
+	err := service.Register(form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    "Register fail",
+			"data":   nil,
+		})
+	} else {
+		tokenString, _ := middleware.GenToken(form.Account)
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": gin.H{"token": tokenString},
+		})
+	}
+
+}
+
 // @Summary 登入
 // @Tags user
 // @version 1.0
@@ -111,40 +142,13 @@ func (u UsersController) Login(c *gin.Context) {
 
 }
 
-func (u UsersController) CreateUser(c *gin.Context) {
-	t := gi18n.New()
-	lan := c.Request.Header.Get("language")
-	if lan == "" {
-		lan = "zh"
-	}
-	t.SetLanguage(lan)
-
-	var form Register
-	bindErr := c.BindJSON(&form)
-
-	if bindErr == nil {
-		err := service.RegisterOneUser(form.Account, form.Password, form.Email)
-		if err == nil {
-			c.JSON(http.StatusOK, gin.H{
-				"status": 1,
-				"msg":    t.Translate(c, "Response_Success"),
-				"data":   nil,
-			})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": -1,
-				"msg":    "Register Failed" + err.Error(),
-				"data":   nil,
-			})
-		}
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Failed to parse register data" + bindErr.Error(),
-			"data":   nil,
-		})
-	}
-}
+// t := gi18n.New()
+// 	lan := c.Request.Header.Get("language")
+// 	if lan == "" {
+// 		lan = "zh"
+// 	}
+// 	t.SetLanguage(lan)
+// 	t.Translate(c, "Response_Success")
 
 // GetUser GetUser @Summary
 // @Tags user

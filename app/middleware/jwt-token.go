@@ -24,7 +24,7 @@ func GenToken(account string) (string, error) {
 		account,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
-			Issuer:    "Flynn",
+			Issuer:    account,
 		},
 	}
 	// Choose specific algorithm
