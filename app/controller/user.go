@@ -86,7 +86,7 @@ func (u UsersController) Register(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
-			"msg":    "Register fail",
+			"msg":    "Register fail : " + err.Error(),
 			"data":   nil,
 		})
 	} else {

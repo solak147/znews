@@ -9,10 +9,10 @@ import (
 type User struct {
 	gorm.Model
 	ID           int64     `gorm:"primary_key;auto_increment" json:"id"`
-	Account      string    `gorm:"size:20;not null;unique" json:"account"`
+	Account      string    `gorm:"size:50;not null;unique" json:"account"`
 	Password     string    `gorm:"size:30;not null;" json:"password"`
 	Name         string    `gorm:"size:20;not null;"  json:"name" `
-	Email        string    `gorm:"size:20;" json:"email"`
+	Email        string    `gorm:"size:50;" json:"email"`
 	Phone        string    `gorm:"size:20;" json:"phone"`
 	Zipcode      string    `gorm:"size:3;"  json:"zipcode"`
 	Introduction string    `gorm:"size:200;"  json:"introduction"`
