@@ -114,7 +114,7 @@ func (u UsersController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := service.GetUser(form.Account, form.Password)
+	user, err := service.GetUserByPwd(form.Account, form.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": -1,
@@ -150,29 +150,20 @@ func (u UsersController) Login(c *gin.Context) {
 // 	t.SetLanguage(lan)
 // 	t.Translate(c, "Response_Success")
 
-// GetUser GetUser @Summary
+// @Summary GetProfile
 // @Tags user
 // @version 1.0
 // @produce application/json
 // @Security BearerAuth
-// @param id path int true "id" default(1)
+// @param id path string true "帳號" default(”)
 // @Success 200 string string successful return data
-// @Router /v1/users/{id} [get]
-func (u UsersController) GetUser(c *gin.Context) {
-	id := c.Params.ByName("id")
+// @Router /member/profile/{id} [get]
+func (u UsersController) GetProfile(c *gin.Context) {
+	account := c.Params.ByName("account")
 
-	userId, err := strconv.ParseInt(id, 10, 64)
+	user, err := service.GetUser(account)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Failed to parse params" + err.Error(),
-			"data":   nil,
-		})
-	}
-
-	userOne, err := service.SelectOneUsers(userId)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{
 			"status": -1,
 			"msg":    "User not found" + err.Error(),
 			"data":   nil,
@@ -181,7 +172,7 @@ func (u UsersController) GetUser(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 0,
 			"msg":    "Successfully get user data",
-			"user":   &userOne,
+			"user":   &user,
 		})
 	}
 }

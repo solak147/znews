@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"znews/app/dao"
+	"znews/app/middleware"
 	"znews/app/model"
-	"znews/middleware"
 
 	"github.com/dlclark/regexp2"
 	"github.com/sirupsen/logrus"
@@ -13,9 +13,19 @@ import (
 
 var UserFields = []string{"id", "account", "email"}
 
-func SelectOneUsers(id int64) (*model.User, error) {
+func GetUser(account string) (*model.User, error) {
+	user := &model.User{}
+	err := dao.SqlSession.Select("*").Where("account=?", account).First(&user).Error
+	if err != nil {
+		return nil, err
+	} else {
+		return user, nil
+	}
+}
+
+func GetUserByPwd(account string, password string) (*model.User, error) {
 	userOne := &model.User{}
-	err := dao.SqlSession.Select(UserFields).Where("id=?", id).First(&userOne).Error
+	err := dao.SqlSession.Select(UserFields).Where("account=? and password=?", account, password).First(&userOne).Error
 	if err != nil {
 		return nil, err
 	} else {
@@ -66,21 +76,11 @@ func CheckUserExit(account string) bool {
 	if dbResult.Error != nil {
 		middleware.Logger().WithFields(logrus.Fields{
 			"name": "Get User Info Failed:",
-		}).error(dbResult.Error)
+		}).Error(dbResult.Error)
 	} else {
 		result = true
 	}
 	return result
-}
-
-func GetUser(account string, password string) (*model.User, error) {
-	userOne := &model.User{}
-	err := dao.SqlSession.Select(UserFields).Where("account=? and password=?", account, password).First(&userOne).Error
-	if err != nil {
-		return nil, err
-	} else {
-		return userOne, nil
-	}
 }
 
 func regexpRigister(pattern string, matchStr string) error {
