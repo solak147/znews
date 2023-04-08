@@ -36,6 +36,8 @@ services:
     depends_on:
       - db
       - redis
+    volumes:
+    - ./logs/:/usr/local/go/src/znews/logs
 
 networks:
   backend-bridge:

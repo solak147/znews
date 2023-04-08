@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"znews/app/dao"
 	"znews/app/model"
+	"znews/middleware"
 
 	"github.com/dlclark/regexp2"
+	"github.com/sirupsen/logrus"
 )
 
 var UserFields = []string{"id", "account", "email"}
@@ -62,7 +64,9 @@ func CheckUserExit(account string) bool {
 
 	dbResult := dao.SqlSession.Where("account = ?", account).Find(&user)
 	if dbResult.Error != nil {
-		fmt.Printf("Get User Info Failed:%v\n", dbResult.Error)
+		middleware.Logger().WithFields(logrus.Fields{
+			"name": "Get User Info Failed:",
+		}).error(dbResult.Error)
 	} else {
 		result = true
 	}

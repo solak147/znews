@@ -17,11 +17,11 @@ import (
 
 func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
+	r.Use(middleware.LoggerToFile())
 	r.Use(corsMiddleware())
 
 	posts := r.Group("/v1/users")
 	{
-		//posts.POST("/", controller.UserController().CreateUser)
 		posts.GET("/", controller.UserController().GetUser)
 	}
 
