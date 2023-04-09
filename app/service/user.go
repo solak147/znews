@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var UserFields = []string{"id", "account", "email"}
+var UserFields = []string{"account", "email"}
 
 func GetUser(account string) (*model.User, error) {
 	user := &model.User{}
@@ -24,13 +24,39 @@ func GetUser(account string) (*model.User, error) {
 }
 
 func GetUserByPwd(account string, password string) (*model.User, error) {
-	userOne := &model.User{}
-	err := dao.SqlSession.Select(UserFields).Where("account=? and password=?", account, password).First(&userOne).Error
+	user := &model.User{}
+	err := dao.SqlSession.Select(UserFields).Where("account=? and password=?", account, password).First(&user).Error
 	if err != nil {
 		return nil, err
 	} else {
-		return userOne, nil
+		return user, nil
 	}
+}
+
+func UpdateUser(form model.ProfileSave) error {
+
+	user := model.User{
+		Name:         form.Name,
+		Zipcode:      form.Zipcode,
+		Phone:        form.Phone,
+		Introduction: form.Introduction,
+	}
+
+	if form.PwdSwitch {
+		u, e := GetUserByPwd(form.Account, form.OldPassword)
+		if e != nil || u == nil {
+			return errors.New("舊密碼錯誤")
+		}
+		user.Password = form.Password
+	}
+
+	err := dao.SqlSession.Model(&model.User{}).Where("account = ?", form.Account).Updates(user).Error
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+
 }
 
 func Register(form model.RegisterStep3) error {

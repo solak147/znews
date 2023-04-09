@@ -176,3 +176,35 @@ func (u UsersController) GetProfile(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 個人資料儲存
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @param MyAccount body model.ProfileSave true "修改成功回傳 boolean"
+// @Success 200 boolean successful return boolean
+// @Router /profile/save [post]
+func (u UsersController) UpdateProfile(c *gin.Context) {
+	var form model.ProfileSave
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
+		return
+	}
+
+	if err := service.UpdateUser(form); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status": -1,
+			"msg":    err.Error(),
+			"data":   false,
+		})
+
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"status": 0,
+			"msg":    "Successfully save",
+			"data":   true,
+		})
+	}
+
+}

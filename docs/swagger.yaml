@@ -2,16 +2,58 @@ definitions:
   model.Login:
     properties:
       account:
-        example: kevin
+        example: kevin@gmail.com
         type: string
       password:
         example: "123456"
         type: string
     type: object
+  model.ProfileSave:
+    properties:
+      introduction:
+        example: 我有 8000 名部下
+        type: string
+      name:
+        example: 桐谷和人
+        type: string
+      password:
+        example: "123456"
+        type: string
+      phone:
+        example: "0999999999"
+        type: string
+      zipcode:
+        example: "200"
+        type: string
+    type: object
   model.RegisterStep1:
     properties:
+      email:
+        example: kevin@gmail.com
+        type: string
+    type: object
+  model.RegisterStep3:
+    properties:
       account:
-        example: kevin
+        example: kevin@gmail.com
+        type: string
+      email:
+        example: kevin@gmail.com
+        type: string
+      introduction:
+        example: 我有 8000 名部下
+        type: string
+      name:
+        example: 桐谷和人
+        type: string
+      password:
+        example: "123456"
+        type: string
+      phone:
+        example: "0999999999"
+        type: string
+      zipcode:
+        example: "200"
         type: string
     type: object
 host: localhost:8080
@@ -44,6 +86,27 @@ paths:
       summary: 登入
       tags:
       - user
+  /member/profile/{id}:
+    get:
+      parameters:
+      - default: ”
+        description: 帳號
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: GetProfile
+      tags:
+      - user
   /member/registerStep1:
     post:
       parameters:
@@ -63,24 +126,42 @@ paths:
       summary: 註冊 Step1
       tags:
       - user
-  /v1/users/{id}:
-    get:
+  /member/registerStep3:
+    post:
       parameters:
-      - default: 1
-        description: id
-        in: path
-        name: id
+      - description: 註冊帳號
+        in: body
+        name: register
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/model.RegisterStep3'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: string
-      security:
-      - BearerAuth: []
+            type: boolean
+      summary: 註冊 Step3
+      tags:
+      - user
+  /profile/save:
+    post:
+      parameters:
+      - description: 修改成功回傳 boolean
+        in: body
+        name: MyAccount
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProfileSave'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: 個人資料儲存
       tags:
       - user
 securityDefinitions:

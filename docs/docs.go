@@ -51,6 +51,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/member/profile/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "GetProfile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "”",
+                        "description": "帳號",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/member/registerStep1": {
             "post": {
                 "produces": [
@@ -81,34 +115,61 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/users/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
+        "/member/registerStep3": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
                 ],
+                "summary": "註冊 Step3",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "註冊帳號",
+                        "name": "register",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.RegisterStep3"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/save": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "個人資料儲存",
+                "parameters": [
+                    {
+                        "description": "修改成功回傳 boolean",
+                        "name": "MyAccount",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ProfileSave"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
                         }
                     }
                 }
@@ -121,7 +182,7 @@ const docTemplate = `{
             "properties": {
                 "account": {
                     "type": "string",
-                    "example": "kevin"
+                    "example": "kevin@gmail.com"
                 },
                 "password": {
                     "type": "string",
@@ -129,12 +190,70 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ProfileSave": {
+            "type": "object",
+            "properties": {
+                "introduction": {
+                    "type": "string",
+                    "example": "我有 8000 名部下"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "桐谷和人"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "0999999999"
+                },
+                "zipcode": {
+                    "type": "string",
+                    "example": "200"
+                }
+            }
+        },
         "model.RegisterStep1": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "kevin@gmail.com"
+                }
+            }
+        },
+        "model.RegisterStep3": {
             "type": "object",
             "properties": {
                 "account": {
                     "type": "string",
-                    "example": "kevin"
+                    "example": "kevin@gmail.com"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "kevin@gmail.com"
+                },
+                "introduction": {
+                    "type": "string",
+                    "example": "我有 8000 名部下"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "桐谷和人"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "123456"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "0999999999"
+                },
+                "zipcode": {
+                    "type": "string",
+                    "example": "200"
                 }
             }
         }

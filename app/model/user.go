@@ -2,14 +2,12 @@ package model
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
-	ID           int64     `gorm:"primary_key;auto_increment" json:"id"`
-	Account      string    `gorm:"size:50;not null;unique" json:"account"`
+	//gorm.Model
+	//ID           int64     `gorm:"primary_key;auto_increment" json:"id"`
+	Account      string    `gorm:"primary_key;size:50;not null;unique" json:"account"`
 	Password     string    `gorm:"size:30;not null;" json:"password"`
 	Name         string    `gorm:"size:20;not null;"  json:"name" `
 	Email        string    `gorm:"size:50;" json:"email"`
@@ -37,4 +35,15 @@ type RegisterStep3 struct {
 	Email        string `form:"email"  example:"kevin@gmail.com"`
 	Zipcode      string `form:"zipcode"  example:"200"`
 	Introduction string `form:"introduction"  example:"我有 8000 名部下"`
+}
+
+type ProfileSave struct {
+	Account      string `form:"account"  example:"kevin@gmail.com"`
+	OldPassword  string `form:"oldPassword"  example:"123456"`
+	Password     string `form:"password"  example:"123456"`
+	Name         string `form:"name"  example:"桐谷和人"`
+	Phone        string `form:"phone"  example:"0999999999"`
+	Zipcode      string `form:"zipcode"  example:"200"`
+	Introduction string `form:"introduction"  example:"我有 8000 名部下"`
+	PwdSwitch    bool   `form:"pwdSwitch"  example:"true"`
 }

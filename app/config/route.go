@@ -26,6 +26,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
 		r.Use(middleware.JWTAuthMiddleware())
 		member.GET("/profile/:account", controller.UserController().GetProfile)
+		member.POST("/profile/save", controller.UserController().UpdateProfile)
 
 		//member.GET("/:id", middleware.JWTAuthMiddleware(), cache.CacheByRequestURI(m, 2*time.Hour), controller.UserController().GetUser)
 	}
