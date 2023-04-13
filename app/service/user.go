@@ -7,7 +7,6 @@ import (
 	"znews/app/middleware"
 	"znews/app/model"
 
-	"github.com/dlclark/regexp2"
 	"github.com/sirupsen/logrus"
 )
 
@@ -107,17 +106,4 @@ func CheckUserExit(account string) bool {
 		result = true
 	}
 	return result
-}
-
-func regexpRigister(pattern string, matchStr string) error {
-	// 编译正则表达式
-	re := regexp2.MustCompile(pattern, 0)
-
-	isMatch, err := re.MatchString(matchStr)
-	if err == nil && isMatch {
-		return nil
-	} else {
-		return errors.New(matchStr + "not match regexp, err:" + err.Error())
-	}
-
 }

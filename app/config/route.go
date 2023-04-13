@@ -18,17 +18,23 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	r.Use(middleware.LoggerToFile())
 	r.Use(corsMiddleware())
 
+	r.POST("/registerStep1", controller.UserController().CheckUserExit)
+	r.POST("/registerStep3", controller.UserController().Register)
+	r.POST("/login", controller.UserController().Login)
+
+	r.Use(middleware.JWTAuthMiddleware())
+
 	member := r.Group("/member")
 	{
-		member.POST("/registerStep1", controller.UserController().CheckUserExit)
-		member.POST("/registerStep3", controller.UserController().Register)
-		member.POST("/login", controller.UserController().Login)
-
-		r.Use(middleware.JWTAuthMiddleware())
 		member.GET("/profile/:account", controller.UserController().GetProfile)
 		member.POST("/profile/save", controller.UserController().UpdateProfile)
 
 		//member.GET("/:id", middleware.JWTAuthMiddleware(), cache.CacheByRequestURI(m, 2*time.Hour), controller.UserController().GetUser)
+	}
+
+	casem := r.Group("/case")
+	{
+		casem.POST("/createt", controller.CaseController().CreateCase)
 	}
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
