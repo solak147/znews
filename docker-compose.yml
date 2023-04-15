@@ -39,6 +39,38 @@ services:
     volumes:
     - ./logs/:/usr/local/go/src/znews/logs
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ./es-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+     - backend-bridge
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.12.0
+    container_name: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./mysql-connector-java-8.0.30.jar:/usr/share/logstash/logstash-core/lib/jars/mysql-connector-java-8.0.30.jar
+    environment:
+      - "XPACK_MONITORING_ENABLED=false"
+    ports:
+      - 5000:5000
+      - 9600:9600
+    networks:
+      - backend-bridge
+
 networks:
   backend-bridge:
     driver: bridge
