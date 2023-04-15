@@ -27,7 +27,10 @@ func (ca CasesController) CreateCase(c *gin.Context) {
 
 	var form model.CreateCase
 	if err := c.ShouldBind(&form); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Form bind error : " + err.Error(),
+		})
 		return
 	}
 
@@ -38,15 +41,13 @@ func (ca CasesController) CreateCase(c *gin.Context) {
 		}).Error(err.Error)
 
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "發案失敗 : " + err.Error(),
-			"data":   nil,
+			"code": -1,
+			"msg":  "發案失敗 : " + err.Error(),
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"code": 0,
 			"msg":  "Success",
-			"data": true,
 		})
 	}
 

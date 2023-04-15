@@ -22,7 +22,8 @@ func CreateCase(form model.CreateCase) error {
 		return err
 	}
 
-	if err := regexpRigister(`^[o,i]$`, form.ExpectDate); err != nil {
+	// 0-30 or yyyy/mm/dd
+	if err := regexpRigister(`^([0-9]{4}/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])|([12][0-9]|30|[0-9]))$`, form.ExpectDate); err != nil {
 		return err
 	}
 
@@ -62,13 +63,14 @@ func CreateCase(form model.CreateCase) error {
 		return err
 	}
 
-	casem := model.Case{
+	casem := model.Casem{
 		Account:       form.Account,
 		Title:         form.Title,
 		Type:          form.Type,
 		Kind:          form.Kind,
 		ExpectDate:    form.ExpectDate,
 		ExpectDateChk: form.ExpectDateChk,
+		ExpectMoney:   form.ExpectMoney,
 		WorkArea:      form.WorkArea,
 		WorkAreaChk:   form.WorkAreaChk,
 		WorkContent:   form.WorkContent,
@@ -82,6 +84,6 @@ func CreateCase(form model.CreateCase) error {
 		Email:       form.Email,
 	}
 
-	insertErr := dao.SqlSession.Model(&model.Case{}).Create(&casem).Error
+	insertErr := dao.SqlSession.Model(&model.Casem{}).Create(&casem).Error
 	return insertErr
 }

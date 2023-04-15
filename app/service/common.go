@@ -14,7 +14,12 @@ func regexpRigister(pattern string, matchStr string) error {
 	if err == nil && isMatch {
 		return nil
 	} else {
-		return errors.New(matchStr + "not match regexp, err:" + err.Error())
+		errStr := matchStr + " not match regexp"
+
+		if err != nil {
+			errStr = errStr + ", err : " + err.Error()
+		}
+		return errors.New(errStr)
 	}
 
 }

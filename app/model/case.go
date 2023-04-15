@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-type Case struct {
+type Casem struct {
 	CaseId        int64  `gorm:"primary_key;auto_increment" json:"caseId"`
 	Account       string `gorm:"size:50;not null;" json:"account"`
 	Title         string `gorm:"size:20;not null;" json:"title"`

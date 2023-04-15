@@ -34,7 +34,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
 	casem := r.Group("/case")
 	{
-		casem.POST("/createt", controller.CaseController().CreateCase)
+		casem.POST("/create", controller.CaseController().CreateCase)
 	}
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
