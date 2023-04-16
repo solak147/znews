@@ -48,14 +48,16 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 	return nil, errors.New("invalid token")
 }
 
+// code -2 jwt驗證未通過
 // JWTAuthMiddleware Middleware of JWT
 func JWTAuthMiddleware() func(c *gin.Context) {
 	return func(c *gin.Context) {
+
 		// Get token from Header.Authorization field.
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
+				"code": -2,
 				"msg":  "Authorization is null in Header",
 			})
 			c.Abort()
@@ -65,7 +67,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
+				"code": -2,
 				"msg":  "Format of Authorization is wrong",
 			})
 			c.Abort()
@@ -75,7 +77,7 @@ func JWTAuthMiddleware() func(c *gin.Context) {
 		mc, err := ParseToken(parts[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
-				"code": -1,
+				"code": -2,
 				"msg":  "Invalid Token.",
 			})
 			c.Abort()

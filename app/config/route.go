@@ -37,6 +37,11 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		casem.POST("/create", controller.CaseController().CreateCase)
 	}
 
+	file := r.Group("/file")
+	{
+		file.POST("/upload", controller.FileController().Upload)
+	}
+
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 }

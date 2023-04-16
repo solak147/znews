@@ -23,7 +23,7 @@ func CreateCase(form model.CreateCase) error {
 	}
 
 	// 0-30 or yyyy/mm/dd
-	if err := regexpRigister(`^([0-9]{4}/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])|([12][0-9]|30|[0-9]))$`, form.ExpectDate); err != nil {
+	if err := regexpRigister(`^([0-9]{4}/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])|([12][0-9]|30|[0-9])|)$`, form.ExpectDate); err != nil {
 		return err
 	}
 

@@ -14,6 +14,36 @@
     },
     "host": "localhost:8080",
     "paths": {
+        "/case/create": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "case"
+                ],
+                "summary": "發案/案件建立",
+                "parameters": [
+                    {
+                        "description": "發案",
+                        "name": "case",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateCase"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
         "/member/login": {
             "post": {
                 "produces": [
@@ -167,9 +197,117 @@
                     }
                 }
             }
+        },
+        "/upload": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "上傳檔案",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "上傳檔案",
+                        "name": "files",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "model.CreateCase": {
+            "type": "object",
+            "properties": {
+                "account": {
+                    "type": "string",
+                    "example": "kevin@gmail.com"
+                },
+                "cityTalk": {
+                    "type": "string",
+                    "example": "04"
+                },
+                "cityTalk2": {
+                    "type": "string",
+                    "example": "26232356"
+                },
+                "contactTime": {
+                    "type": "string",
+                    "example": "m,a"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "kevin@gmail.com"
+                },
+                "expectDate": {
+                    "type": "string",
+                    "example": "2022/02/02"
+                },
+                "expectDateChk": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "expectMoney": {
+                    "type": "string",
+                    "example": "5000"
+                },
+                "extension": {
+                    "type": "string",
+                    "example": "0000"
+                },
+                "kind": {
+                    "type": "string",
+                    "example": "o:一般案件 i:急件"
+                },
+                "line": {
+                    "type": "string",
+                    "example": "imlineid"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "kevin"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "0999999999"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "電傷平台架設"
+                },
+                "type": {
+                    "type": "string",
+                    "example": "程式開發"
+                },
+                "workArea": {
+                    "type": "string",
+                    "example": "台北市 信義區"
+                },
+                "workAreaChk": {
+                    "type": "string",
+                    "example": "1"
+                },
+                "workContent": {
+                    "type": "string",
+                    "example": "電傷平台架設，伺服器維護..."
+                }
+            }
+        },
         "model.Login": {
             "type": "object",
             "properties": {
@@ -186,6 +324,10 @@
         "model.ProfileSave": {
             "type": "object",
             "properties": {
+                "account": {
+                    "type": "string",
+                    "example": "kevin@gmail.com"
+                },
                 "introduction": {
                     "type": "string",
                     "example": "我有 8000 名部下"
@@ -194,6 +336,10 @@
                     "type": "string",
                     "example": "桐谷和人"
                 },
+                "oldPassword": {
+                    "type": "string",
+                    "example": "123456"
+                },
                 "password": {
                     "type": "string",
                     "example": "123456"
@@ -201,6 +347,10 @@
                 "phone": {
                     "type": "string",
                     "example": "0999999999"
+                },
+                "pwdSwitch": {
+                    "type": "boolean",
+                    "example": true
                 },
                 "zipcode": {
                     "type": "string",

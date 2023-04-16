@@ -85,9 +85,8 @@ func (u UsersController) Register(c *gin.Context) {
 	err := service.Register(form)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Register fail : " + err.Error(),
-			"data":   nil,
+			"code": -1,
+			"msg":  "Register fail : " + err.Error(),
 		})
 	} else {
 		tokenString, _ := middleware.GenToken(form.Account)

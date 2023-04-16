@@ -1,4 +1,61 @@
 definitions:
+  model.CreateCase:
+    properties:
+      account:
+        example: kevin@gmail.com
+        type: string
+      cityTalk:
+        example: "04"
+        type: string
+      cityTalk2:
+        example: "26232356"
+        type: string
+      contactTime:
+        example: m,a
+        type: string
+      email:
+        example: kevin@gmail.com
+        type: string
+      expectDate:
+        example: 2022/02/02
+        type: string
+      expectDateChk:
+        example: "1"
+        type: string
+      expectMoney:
+        example: "5000"
+        type: string
+      extension:
+        example: "0000"
+        type: string
+      kind:
+        example: o:一般案件 i:急件
+        type: string
+      line:
+        example: imlineid
+        type: string
+      name:
+        example: kevin
+        type: string
+      phone:
+        example: "0999999999"
+        type: string
+      title:
+        example: 電傷平台架設
+        type: string
+      type:
+        example: 程式開發
+        type: string
+      workArea:
+        example: 台北市 信義區
+        type: string
+      workAreaChk:
+        example: "1"
+        type: string
+      workContent:
+        example: 電傷平台架設，伺服器維護...
+        type: string
+    type: object
   model.Login:
     properties:
       account:
@@ -10,11 +67,17 @@ definitions:
     type: object
   model.ProfileSave:
     properties:
+      account:
+        example: kevin@gmail.com
+        type: string
       introduction:
         example: 我有 8000 名部下
         type: string
       name:
         example: 桐谷和人
+        type: string
+      oldPassword:
+        example: "123456"
         type: string
       password:
         example: "123456"
@@ -22,6 +85,9 @@ definitions:
       phone:
         example: "0999999999"
         type: string
+      pwdSwitch:
+        example: true
+        type: boolean
       zipcode:
         example: "200"
         type: string
@@ -67,6 +133,25 @@ info:
   title: Gin swagger
   version: 1.8.10
 paths:
+  /case/create:
+    post:
+      parameters:
+      - description: 發案
+        in: body
+        name: case
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateCase'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: 發案/案件建立
+      tags:
+      - case
   /member/login:
     post:
       parameters:
@@ -164,6 +249,26 @@ paths:
       summary: 個人資料儲存
       tags:
       - user
+  /upload:
+    post:
+      parameters:
+      - description: 上傳檔案
+        in: formData
+        items:
+          type: string
+        name: files
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: 上傳檔案
+      tags:
+      - file
 securityDefinitions:
   BearerAuth:
     in: header
