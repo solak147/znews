@@ -38,7 +38,7 @@ func main() {
 	if ormErr != nil {
 		panic(ormErr)
 	}
-	migrateErr := db.AutoMigrate(&model.User{}, &model.Casem{})
+	migrateErr := db.AutoMigrate(&model.User{}, &model.Casem{}, &model.CaseFile{}, &model.SerialNo{})
 	if migrateErr != nil {
 		return
 	}

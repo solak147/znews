@@ -1,8 +1,15 @@
 package service
 
 import (
+	"fmt"
+	"sync"
+	"time"
 	"znews/app/dao"
 	"znews/app/model"
+)
+
+var (
+	mu sync.Mutex
 )
 
 func CreateCase(form model.CreateCase) error {
@@ -63,7 +70,13 @@ func CreateCase(form model.CreateCase) error {
 		return err
 	}
 
+	caseId, genErr := genCaseId()
+	if genErr != nil {
+		return genErr
+	}
+
 	casem := model.Casem{
+		CaseId:        caseId,
 		Account:       form.Account,
 		Title:         form.Title,
 		Type:          form.Type,
@@ -84,6 +97,40 @@ func CreateCase(form model.CreateCase) error {
 		Email:       form.Email,
 	}
 
-	insertErr := dao.SqlSession.Model(&model.Casem{}).Create(&casem).Error
-	return insertErr
+	err := dao.SqlSession.Model(&model.Casem{}).Create(&casem).Error
+	if err != nil {
+		return err
+	}
+
+	for _, name := range form.FilesName {
+		file := model.CaseFile{
+			CaseId:   caseId,
+			FileName: name,
+		}
+
+		err := dao.SqlSession.Model(&model.CaseFile{}).Create(&file).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func genCaseId() (string, error) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	now := time.Now()
+	year, month, _ := now.Date()
+	monthFmt := fmt.Sprintf("%02d", month)
+
+	serial := model.SerialNo{}
+
+	err := dao.SqlSession.Select("*").Where("year=? and month=?", year, monthFmt).First(&serial).Error
+	if err != nil {
+		return "", err
+	}
+
+	caseId := fmt.Sprintf("%d%02d%03d", year, month, serial.No)
+	return caseId, nil
 }

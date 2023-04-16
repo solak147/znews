@@ -5,7 +5,7 @@ import (
 )
 
 type Casem struct {
-	CaseId        int64  `gorm:"primary_key;auto_increment" json:"caseId"`
+	CaseId        string `gorm:"primary_key;size:10;" json:"caseId"`
 	Account       string `gorm:"size:50;not null;" json:"account"`
 	Title         string `gorm:"size:20;not null;" json:"title"`
 	Type          string `gorm:"size:4;not null;" json:"type"`
@@ -42,12 +42,13 @@ type CreateCase struct {
 	WorkAreaChk   string `form:"workAreaChk"  example:"1"`
 	WorkContent   string `form:"workContent"  example:"電傷平台架設，伺服器維護..."`
 
-	Name        string `form:"name"  example:"kevin"`
-	Phone       string `form:"phone"  example:"0999999999"`
-	CityTalk    string `form:"cityTalk"  example:"04"`
-	CityTalk2   string `form:"cityTalk2"  example:"26232356"`
-	Extension   string `form:"extension"  example:"0000"`
-	ContactTime string `form:"contactTime"  example:"m,a"`
-	Email       string `form:"email"  example:"kevin@gmail.com"`
-	Line        string `form:"line"  example:"imlineid"`
+	Name        string   `form:"name"  example:"kevin"`
+	Phone       string   `form:"phone"  example:"0999999999"`
+	CityTalk    string   `form:"cityTalk"  example:"04"`
+	CityTalk2   string   `form:"cityTalk2"  example:"26232356"`
+	Extension   string   `form:"extension"  example:"0000"`
+	ContactTime string   `form:"contactTime"  example:"m,a"`
+	Email       string   `form:"email"  example:"kevin@gmail.com"`
+	Line        string   `form:"line"  example:"imlineid"`
+	FilesName   []string `form:"filesName"  example:"[a.jpg]"`
 }
