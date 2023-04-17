@@ -131,6 +131,15 @@ func genCaseId() (string, error) {
 		return "", err
 	}
 
-	caseId := fmt.Sprintf("%d%02d%03d", year, month, serial.No)
+	uptNo := model.SerialNo{
+		No: serial.No + 1,
+	}
+
+	insErr := dao.SqlSession.Model(&model.SerialNo{}).Where("year=? and month=?", year, monthFmt).Updates(uptNo).Error
+	if insErr != nil {
+		return "", insErr
+	}
+
+	caseId := fmt.Sprintf("%d%02d%03d", year, month, serial.No+1)
 	return caseId, nil
 }

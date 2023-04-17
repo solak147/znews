@@ -41,6 +41,7 @@ func UpdateUser(form model.ProfileSave) error {
 		Introduction: form.Introduction,
 	}
 
+	//是否勾選要修改密碼
 	if form.PwdSwitch {
 		u, e := GetUserByPwd(form.Account, form.OldPassword)
 		if e != nil || u == nil {
