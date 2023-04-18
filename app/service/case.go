@@ -143,3 +143,7 @@ func genCaseId() (string, error) {
 	caseId := fmt.Sprintf("%d%02d%03d", year, month, serial.No+1)
 	return caseId, nil
 }
+
+func GetAllCase() {
+	dao.GetAllCase()
+}

@@ -3,8 +3,10 @@ package service
 import (
 	"net/smtp"
 	"os"
+	"znews/app/middleware"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 )
 
 func Send(title string, body string, to string) {
@@ -27,6 +29,9 @@ func Send(title string, body string, to string) {
 		smtp.PlainAuth("", from, pass, server),
 		from, []string{to}, []byte(msg))
 	if err != nil {
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "SendMail Failed",
+		}).Error(err.Error())
 		return
 	}
 

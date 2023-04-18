@@ -53,3 +53,15 @@ func (ca CasesController) CreateCase(c *gin.Context) {
 	}
 
 }
+
+// @Summary 接案查詢
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @param case url nil true "接案查詢"
+// @Success 200 json successful return json
+// @Router /case/getAll [get]
+func (ca CasesController) GetAll(c *gin.Context) {
+	service.GetAllCase()
+
+}
