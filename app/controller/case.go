@@ -61,7 +61,24 @@ func (ca CasesController) CreateCase(c *gin.Context) {
 // @param case url nil true "接案查詢"
 // @Success 200 json successful return json
 // @Router /case/getAll [get]
-func (ca CasesController) GetAll(c *gin.Context) {
-	service.GetAllCase()
+func (ca CasesController) GetCase(c *gin.Context) {
+	data, err := service.GetCase(c)
+
+	if err != nil {
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "Get case failed:",
+		}).Error(err.Error)
+
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "Get case Failed :" + err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": data,
+		})
+	}
 
 }

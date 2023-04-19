@@ -116,18 +116,16 @@ func (u UsersController) Login(c *gin.Context) {
 	user, err := service.GetUserByPwd(form.Account, form.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Failed to parse params" + err.Error(),
-			"data":   nil,
+			"code": -1,
+			"msg":  "Failed to parse params" + err.Error(),
 		})
 		return
 	}
 
 	if user == nil {
 		c.JSON(http.StatusNotFound, gin.H{
-			"status": -1,
-			"msg":    "User not found",
-			"data":   nil,
+			"code": -1,
+			"msg":  "User not found",
 		})
 
 	} else {

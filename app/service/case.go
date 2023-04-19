@@ -2,10 +2,13 @@ package service
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 	"znews/app/dao"
 	"znews/app/model"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -144,6 +147,37 @@ func genCaseId() (string, error) {
 	return caseId, nil
 }
 
-func GetAllCase() {
-	dao.GetAllCase()
+func GetCase(c *gin.Context) ([]interface{}, error) {
+
+	kind := c.Query("kind")
+	from := c.Query("name")
+	size := c.Query("size")
+
+	fromInt, _ := strconv.Atoi(from)
+	sizeInt, _ := strconv.Atoi(size)
+	match := ""
+	if kind == "" {
+		match = `"match_all": {}`
+	} else {
+		match = fmt.Sprintf(`"match":{
+					"kind": %s
+				}`, kind)
+	}
+
+	query := fmt.Sprintf(`{
+        "query": {
+			%s
+        },
+        "sort": [
+            {
+              "updated_at": {
+                "order": "desc"
+              }
+            }
+          ],
+        "from": %d, 
+        "size": %d
+    }`, match, fromInt, sizeInt)
+
+	return dao.GetCase(query)
 }
