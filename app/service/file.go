@@ -14,7 +14,7 @@ func Upload(c *gin.Context) error {
 	}
 
 	files := form.File["files[]"]
-	path := os.Getenv("CASE_FILE")
+	path := os.Getenv("Case_FILE_PATH")
 
 	for _, file := range files {
 

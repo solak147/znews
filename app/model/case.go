@@ -10,7 +10,7 @@ type Casem struct {
 	Title         string `gorm:"size:20;not null;" json:"title"`
 	Type          string `gorm:"size:4;not null;" json:"type"`
 	Kind          string `gorm:"size:1;not null;" json:"kind"`
-	ExpectDate    string `gorm:"size:10;not null;" json:"expectDate"`
+	ExpectDate    string `gorm:"size:10;" json:"expectDate"`
 	ExpectDateChk string `gorm:"size:1;not null;" json:"expectDateChk"`
 	ExpectMoney   string `gorm:"size:10;not null;" json:"expectMoney"`
 	WorkArea      string `gorm:"size:7;not null;" json:"workArea"`

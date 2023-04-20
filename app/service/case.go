@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -149,25 +150,58 @@ func genCaseId() (string, error) {
 
 func GetCase(c *gin.Context) ([]interface{}, error) {
 
-	kind := c.Query("kind")
-	from := c.Query("name")
-	size := c.Query("size")
+	city := c.Query("city")
+	typ := c.Query("type")
+	price := c.Query("price")
+	from := c.Query("from")
+	size := os.Getenv("Sel_Case_Size")
 
 	fromInt, _ := strconv.Atoi(from)
 	sizeInt, _ := strconv.Atoi(size)
+
+	orStr := ""
+	if city != "" {
+		orStr = fmt.Sprintf(`,"should": [
+									{"term": {"work_area_chk": "1"}},
+									{"match_phrase": {"work_area": "%s"}}
+								]`, city)
+
+	}
+
+	matchSub := ""
+	if typ != "" {
+		if matchSub != "" {
+			matchSub += ","
+		}
+		matchSub += fmt.Sprintf(`{"match_phrase": {"type": "%s"}}`, typ)
+	}
+
+	if price != "" {
+		if matchSub != "" {
+			matchSub += ","
+		}
+		matchSub += fmt.Sprintf(`{"match_phrase": {"expect_money": "%s"}}`, price)
+	}
+
 	match := ""
-	if kind == "" {
-		match = `"match_all": {}`
+	if matchSub != "" || orStr != "" {
+		match = fmt.Sprintf(`{
+
+			"bool": {
+				"must": [
+					%s
+				]
+				%s
+			}
+			
+		  }`, matchSub, orStr)
+
 	} else {
-		match = fmt.Sprintf(`"match":{
-					"kind": %s
-				}`, kind)
+		match = `{"match_all": {}}`
 	}
 
 	query := fmt.Sprintf(`{
-        "query": {
-			%s
-        },
+        "query": %s,
         "sort": [
             {
               "updated_at": {
@@ -175,6 +209,7 @@ func GetCase(c *gin.Context) ([]interface{}, error) {
               }
             }
           ],
+
         "from": %d, 
         "size": %d
     }`, match, fromInt, sizeInt)

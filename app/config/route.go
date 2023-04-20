@@ -22,6 +22,8 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	r.POST("/registerStep3", controller.UserController().Register)
 	r.POST("/login", controller.UserController().Login)
 
+	r.GET("/case/get", controller.CaseController().GetCase)
+
 	r.Use(middleware.JWTAuthMiddleware())
 
 	member := r.Group("/member")
@@ -34,7 +36,6 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
 	casem := r.Group("/case")
 	{
-		casem.GET("/get", controller.CaseController().GetCase)
 		casem.POST("/create", controller.CaseController().CreateCase)
 	}
 
