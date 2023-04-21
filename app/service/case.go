@@ -150,6 +150,7 @@ func genCaseId() (string, error) {
 
 func GetCase(c *gin.Context) ([]interface{}, error) {
 
+	search := c.Query("search")
 	city := c.Query("city")
 	typ := c.Query("type")
 	price := c.Query("price")
@@ -169,6 +170,10 @@ func GetCase(c *gin.Context) ([]interface{}, error) {
 	}
 
 	matchSub := ""
+	if search != "" {
+		matchSub += fmt.Sprintf(`{"multi_match": {"query": "%s", "fields": ["title", "work_content"]}}`, search)
+	}
+
 	if typ != "" {
 		if matchSub != "" {
 			matchSub += ","
