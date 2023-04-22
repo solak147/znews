@@ -148,7 +148,7 @@ func genCaseId() (string, error) {
 	return caseId, nil
 }
 
-func GetCase(c *gin.Context) ([]interface{}, error) {
+func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 
 	search := c.Query("search")
 	city := c.Query("city")
@@ -219,5 +219,15 @@ func GetCase(c *gin.Context) ([]interface{}, error) {
         "size": %d
     }`, match, fromInt, sizeInt)
 
-	return dao.GetCase(query)
+	data, eserr := dao.GetCase(query)
+	if eserr != nil {
+		return nil, eserr, 0
+	}
+
+	var cnt int64
+	if err := dao.SqlSession.Model(&model.Casem{}).Count(&cnt).Error; err != nil {
+		return nil, err, 0
+	}
+
+	return data, nil, cnt
 }

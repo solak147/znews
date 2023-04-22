@@ -62,7 +62,7 @@ func (ca CasesController) CreateCase(c *gin.Context) {
 // @Success 200 json successful return json
 // @Router /case/getAll [get]
 func (ca CasesController) GetCase(c *gin.Context) {
-	data, err := service.GetCase(c)
+	data, err, cnt := service.GetCase(c)
 
 	if err != nil {
 		middleware.Logger().WithFields(logrus.Fields{
@@ -78,6 +78,7 @@ func (ca CasesController) GetCase(c *gin.Context) {
 			"code": 0,
 			"msg":  "Success",
 			"data": data,
+			"cnt":  cnt,
 		})
 	}
 
