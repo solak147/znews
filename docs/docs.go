@@ -51,6 +51,90 @@ const docTemplate = `{
                 }
             }
         },
+        "/case/getAll": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "case"
+                ],
+                "summary": "接案查詢",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "接案查詢",
+                        "name": "case",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    }
+                }
+            }
+        },
+        "/case/getDetail/{caseid}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "case"
+                ],
+                "summary": "案件詳細資料",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "案件詳細資料",
+                        "name": "case",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    }
+                }
+            }
+        },
+        "/download/{filename}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "下載檔案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "下載檔案",
+                        "name": "files",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "file"
+                        }
+                    }
+                }
+            }
+        },
         "/member/login": {
             "post": {
                 "produces": [
@@ -276,6 +360,15 @@ const docTemplate = `{
                 "extension": {
                     "type": "string",
                     "example": "0000"
+                },
+                "filesName": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[a.jpg]"
+                    ]
                 },
                 "kind": {
                     "type": "string",

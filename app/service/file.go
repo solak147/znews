@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,4 +30,14 @@ func Upload(c *gin.Context) error {
 		}
 	}
 	return nil
+}
+
+func Download(filename string) string {
+
+	if strings.HasSuffix(filename, ".txt") || strings.HasSuffix(filename, ".pdf") {
+		path := os.Getenv("Case_FILE_PATH")
+		return path + "/" + filename
+	} else {
+		return ""
+	}
 }

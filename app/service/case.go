@@ -99,6 +99,7 @@ func CreateCase(form model.CreateCase) error {
 		Extension:   form.Extension,
 		ContactTime: form.ContactTime,
 		Email:       form.Email,
+		Line:        form.Line,
 	}
 
 	err := dao.SqlSession.Model(&model.Casem{}).Create(&casem).Error
@@ -230,4 +231,29 @@ func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 	}
 
 	return data, nil, cnt
+}
+
+func GetCaseDetail(caseId string, isAuth bool) (*model.Casem, []model.CaseFile, error) {
+
+	fields := []string{"title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at"}
+	casem := &model.Casem{}
+
+	var err error
+	if isAuth {
+		err = dao.SqlSession.Select("*").Where("case_id=?", caseId).First(&casem).Error
+	} else {
+		err = dao.SqlSession.Select(fields).Where("case_id=?", caseId).First(&casem).Error
+	}
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var files []model.CaseFile
+	filesErr := dao.SqlSession.Select("*").Where("case_id=?", caseId).Find(&files).Error
+	if filesErr != nil {
+		return nil, nil, err
+	} else {
+		return casem, files, nil
+	}
 }

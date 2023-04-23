@@ -28,6 +28,12 @@ definitions:
       extension:
         example: "0000"
         type: string
+      filesName:
+        example:
+        - '[a.jpg]'
+        items:
+          type: string
+        type: array
       kind:
         example: o:一般案件 i:急件
         type: string
@@ -152,6 +158,60 @@ paths:
       summary: 發案/案件建立
       tags:
       - case
+  /case/getAll:
+    get:
+      parameters:
+      - description: 接案查詢
+        in: path
+        name: case
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: 接案查詢
+      tags:
+      - case
+  /case/getDetail/{caseid}:
+    get:
+      parameters:
+      - description: 案件詳細資料
+        in: path
+        name: case
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+      summary: 案件詳細資料
+      tags:
+      - case
+  /download/{filename}:
+    get:
+      parameters:
+      - description: 下載檔案
+        in: path
+        name: files
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: file
+      summary: 下載檔案
+      tags:
+      - file
   /member/login:
     post:
       parameters:

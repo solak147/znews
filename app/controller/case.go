@@ -58,7 +58,7 @@ func (ca CasesController) CreateCase(c *gin.Context) {
 // @Tags case
 // @version 1.0
 // @produce application/json
-// @param case url nil true "接案查詢"
+// @param case path string true "接案查詢"
 // @Success 200 json successful return json
 // @Router /case/getAll [get]
 func (ca CasesController) GetCase(c *gin.Context) {
@@ -82,4 +82,45 @@ func (ca CasesController) GetCase(c *gin.Context) {
 		})
 	}
 
+}
+
+// @Summary 案件詳細資料
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @param case path string true "案件詳細資料"
+// @Success 200 json successful return json
+// @Router /case/getDetail/{caseid} [get]
+func (ca CasesController) GetCaseDetail(c *gin.Context) {
+	caseId := c.Params.ByName("caseid")
+
+	var (
+		data  *model.Casem
+		files []model.CaseFile
+		err   error
+	)
+
+	if _, exit := c.Get("account"); exit {
+		data, files, err = service.GetCaseDetail(caseId, true)
+	} else {
+		data, files, err = service.GetCaseDetail(caseId, false)
+	}
+
+	if err != nil {
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "Get case deatil failed:",
+		}).Error(err.Error)
+
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "Get case deatil failed :" + err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code":  0,
+			"msg":   "Success",
+			"data":  data,
+			"files": files,
+		})
+	}
 }

@@ -34,3 +34,20 @@ func (f FilesController) Upload(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 下載檔案
+// @Tags file
+// @version 1.0
+// @produce application/json
+// @param files path string true "下載檔案"
+// @Success 200 file successful return file
+// @Router /download/{filename} [get]
+func (f FilesController) Download(c *gin.Context) {
+	filename := c.Param("filename")
+
+	if filepath := service.Download(filename); filepath == "" {
+		c.AbortWithStatus(http.StatusNotFound)
+	} else {
+		c.File(filepath)
+	}
+}

@@ -23,6 +23,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	r.POST("/login", controller.UserController().Login)
 
 	r.GET("/case/get", controller.CaseController().GetCase)
+	r.GET("/case/getDetail/:caseid", controller.CaseController().GetCaseDetail)
 
 	r.Use(middleware.JWTAuthMiddleware())
 
@@ -37,11 +38,13 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	casem := r.Group("/case")
 	{
 		casem.POST("/create", controller.CaseController().CreateCase)
+		casem.GET("/getDetailAuth/:caseid", controller.CaseController().GetCaseDetail)
 	}
 
 	file := r.Group("/file")
 	{
 		file.POST("/upload", controller.FileController().Upload)
+		file.GET("/upload", controller.FileController().Upload)
 	}
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
