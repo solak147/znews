@@ -19,9 +19,9 @@ type Casem struct {
 
 	Name        string `gorm:"size:20;not null;" json:"name"`
 	Phone       string `gorm:"size:20;not null;" json:"phone"`
-	CityTalk    string `gorm:"size:4;" json:"CityTalk"`
-	CityTalk2   string `gorm:"size:10;" json:"CityTalk2"`
-	Extension   string `gorm:"size:5;" json:"Extension"`
+	CityTalk    string `gorm:"size:4;" json:"cityTalk"`
+	CityTalk2   string `gorm:"size:10;" json:"cityTalk2"`
+	Extension   string `gorm:"size:5;" json:"extension"`
 	ContactTime string `gorm:"size:7;not null;" json:"contactTime"`
 	Email       string `gorm:"size:50;not null" json:"email"`
 	Line        string `gorm:"size:20;" json:"line"`

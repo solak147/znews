@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 	"znews/app/dao"
@@ -247,6 +248,39 @@ func GetCaseDetail(caseId string, isAuth bool) (*model.Casem, []model.CaseFile, 
 
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if true {
+		if len(casem.Name) > 3 {
+			casem.Name = casem.Name[:1] + "**" + casem.Name[4:]
+		} else {
+			casem.Name = casem.Name[:1] + "**"
+		}
+
+		if len(casem.Phone) > 10 {
+			casem.Phone = casem.Phone[:3] + "*******" + casem.Phone[11:]
+		} else {
+			casem.Phone = casem.Phone[:3] + "*******"
+		}
+
+		if len(casem.CityTalk) > 1 {
+			casem.CityTalk = "**"
+		}
+
+		if len(casem.CityTalk2) >= 4 {
+			casem.CityTalk2 = casem.CityTalk2[:4] + "****"
+		}
+
+		if len(casem.Extension) >= 2 {
+			casem.Extension = casem.Extension[:2] + "**"
+		}
+
+		if len(casem.Line) > 2 {
+			casem.Line = casem.Line[:1] + "****" + casem.Line[3:]
+		}
+
+		emailArr := strings.Split(casem.Email, "@")
+		casem.Email = "*****@" + emailArr[1]
 	}
 
 	var files []model.CaseFile
