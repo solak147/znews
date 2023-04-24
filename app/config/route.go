@@ -18,6 +18,8 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	r.Use(middleware.LoggerToFile())
 	r.Use(corsMiddleware())
 
+	r.GET("/ws", controller.SocketController().Socket)
+
 	r.POST("/registerStep1", controller.UserController().CheckUserExit)
 	r.POST("/registerStep3", controller.UserController().Register)
 	r.POST("/login", controller.UserController().Login)
@@ -44,7 +46,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	file := r.Group("/file")
 	{
 		file.POST("/upload", controller.FileController().Upload)
-		file.GET("/upload", controller.FileController().Upload)
+		file.GET("/download/:filename", controller.FileController().Download)
 	}
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
