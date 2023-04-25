@@ -33,8 +33,10 @@ func Upload(c *gin.Context) error {
 }
 
 func Download(filename string) string {
+	lowerFilename := strings.ToLower(filename)
 
-	if strings.HasSuffix(filename, ".txt") || strings.HasSuffix(filename, ".pdf") {
+	if strings.HasSuffix(lowerFilename, ".doc") || strings.HasSuffix(lowerFilename, ".pdf") || strings.HasSuffix(lowerFilename, ".ppt") || strings.HasSuffix(lowerFilename, ".jpf") ||
+		strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".gif") {
 		path := os.Getenv("Case_FILE_PATH")
 		return path + "/" + filename
 	} else {

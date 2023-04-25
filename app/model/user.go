@@ -13,6 +13,8 @@ type User struct {
 	Email        string    `gorm:"size:50;" json:"email"`
 	Phone        string    `gorm:"size:20;" json:"phone"`
 	Zipcode      string    `gorm:"size:3;"  json:"zipcode"`
+	VipLevel     string    `gorm:"size:1;"  json:"viplevel"`
+	VipDate      time.Time `gorm:"type:timestamp; json:"vipdate"`
 	Introduction string    `gorm:"size:200;"  json:"introduction"`
 	CreatedAt    time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt    time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`

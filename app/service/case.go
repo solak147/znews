@@ -234,13 +234,14 @@ func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 	return data, nil, cnt
 }
 
-func GetCaseDetail(caseId string, isAuth bool) (*model.Casem, []model.CaseFile, error) {
+func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFile, error) {
 
 	fields := []string{"title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at"}
 	casem := &model.Casem{}
 
+	//是否已登入
 	var err error
-	if isAuth {
+	if account != "" {
 		err = dao.SqlSession.Select("*").Where("case_id=?", caseId).First(&casem).Error
 	} else {
 		err = dao.SqlSession.Select(fields).Where("case_id=?", caseId).First(&casem).Error
@@ -250,37 +251,54 @@ func GetCaseDetail(caseId string, isAuth bool) (*model.Casem, []model.CaseFile, 
 		return nil, nil, err
 	}
 
-	if true {
-		if len(casem.Name) > 3 {
-			casem.Name = casem.Name[:1] + "**" + casem.Name[4:]
-		} else {
-			casem.Name = casem.Name[:1] + "**"
+	// vip是否到期
+	if account != "" {
+
+		user := &model.User{}
+		if userErr := dao.SqlSession.Select("vip_date").Where("account=?", account).First(&user).Error; userErr != nil {
+			return nil, nil, userErr
 		}
 
-		if len(casem.Phone) > 10 {
-			casem.Phone = casem.Phone[:3] + "*******" + casem.Phone[11:]
-		} else {
-			casem.Phone = casem.Phone[:3] + "*******"
-		}
+		// 计算时间戳与当前时间之间的时间差
+		duration := time.Since(user.VipDate)
 
-		if len(casem.CityTalk) > 1 {
-			casem.CityTalk = "**"
-		}
+		// 计算时间差对应的月数
+		months := int(duration.Hours() / 24 / 30)
 
-		if len(casem.CityTalk2) >= 4 {
-			casem.CityTalk2 = casem.CityTalk2[:4] + "****"
-		}
+		if months > 1 {
+			if len(casem.Name) > 3 {
+				casem.Name = casem.Name[:1] + "****" + casem.Name[4:]
+			} else {
+				casem.Name = casem.Name[:1] + "**"
+			}
 
-		if len(casem.Extension) >= 2 {
-			casem.Extension = casem.Extension[:2] + "**"
-		}
+			if len(casem.Phone) > 10 {
+				casem.Phone = casem.Phone[:3] + "*******" + casem.Phone[11:]
+			} else {
+				casem.Phone = casem.Phone[:3] + "*******"
+			}
 
-		if len(casem.Line) > 2 {
-			casem.Line = casem.Line[:1] + "****" + casem.Line[3:]
-		}
+			if len(casem.CityTalk) > 1 {
+				casem.CityTalk = "**"
+			}
 
-		emailArr := strings.Split(casem.Email, "@")
-		casem.Email = "*****@" + emailArr[1]
+			if len(casem.CityTalk2) >= 4 {
+				casem.CityTalk2 = casem.CityTalk2[:4] + "****"
+			}
+
+			if len(casem.Extension) >= 2 {
+				casem.Extension = casem.Extension[:2] + "**"
+			}
+
+			if len(casem.Line) > 3 {
+				casem.Line = casem.Line[:1] + "****" + casem.Line[4:]
+			} else {
+				casem.Line = casem.Line[:1] + "***"
+			}
+
+			emailArr := strings.Split(casem.Email, "@")
+			casem.Email = "*****@" + emailArr[1]
+		}
 	}
 
 	var files []model.CaseFile

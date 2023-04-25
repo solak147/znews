@@ -49,6 +49,11 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		file.GET("/download/:filename", controller.FileController().Download)
 	}
 
+	msg := r.Group("/message")
+	{
+		msg.GET("", controller.MsgController().GetMsgRecord)
+	}
+
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 }

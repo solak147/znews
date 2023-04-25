@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"znews/app/middleware"
 	"znews/app/model"
@@ -100,10 +101,10 @@ func (ca CasesController) GetCaseDetail(c *gin.Context) {
 		err   error
 	)
 
-	if _, exit := c.Get("account"); exit {
-		data, files, err = service.GetCaseDetail(caseId, true)
+	if val, exit := c.Get("account"); exit {
+		data, files, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
 	} else {
-		data, files, err = service.GetCaseDetail(caseId, false)
+		data, files, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
 	}
 
 	if err != nil {
