@@ -34,13 +34,19 @@ func main() {
 
 	port := os.Getenv("PORT")
 	dbConfig := os.Getenv("DB_CONFIG")
-	db, ormErr := dao.Initialize(dbConfig)
+
+	db, ormErr := dao.GormInit(dbConfig)
 	if ormErr != nil {
 		panic(ormErr)
 	}
 	migrateErr := db.AutoMigrate(&model.User{}, &model.Casem{}, &model.CaseFile{}, &model.SerialNo{}, &model.MsgRecord{})
 	if migrateErr != nil {
 		return
+	}
+
+	_, dbErr := dao.DbInit(dbConfig)
+	if dbErr != nil {
+		panic(dbErr)
 	}
 
 	server := gin.Default()

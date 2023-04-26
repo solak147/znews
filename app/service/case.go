@@ -103,7 +103,7 @@ func CreateCase(form model.CreateCase) error {
 		Line:        form.Line,
 	}
 
-	err := dao.SqlSession.Model(&model.Casem{}).Create(&casem).Error
+	err := dao.GormSession.Model(&model.Casem{}).Create(&casem).Error
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func CreateCase(form model.CreateCase) error {
 			FileName: name,
 		}
 
-		err := dao.SqlSession.Model(&model.CaseFile{}).Create(&file).Error
+		err := dao.GormSession.Model(&model.CaseFile{}).Create(&file).Error
 		if err != nil {
 			return err
 		}
@@ -132,7 +132,7 @@ func genCaseId() (string, error) {
 
 	serial := model.SerialNo{}
 
-	err := dao.SqlSession.Select("*").Where("year=? and month=?", year, monthFmt).First(&serial).Error
+	err := dao.GormSession.Select("*").Where("year=? and month=?", year, monthFmt).First(&serial).Error
 	if err != nil {
 		return "", err
 	}
@@ -141,7 +141,7 @@ func genCaseId() (string, error) {
 		No: serial.No + 1,
 	}
 
-	insErr := dao.SqlSession.Model(&model.SerialNo{}).Where("year=? and month=?", year, monthFmt).Updates(uptNo).Error
+	insErr := dao.GormSession.Model(&model.SerialNo{}).Where("year=? and month=?", year, monthFmt).Updates(uptNo).Error
 	if insErr != nil {
 		return "", insErr
 	}
@@ -227,7 +227,7 @@ func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 	}
 
 	var cnt int64
-	if err := dao.SqlSession.Model(&model.Casem{}).Count(&cnt).Error; err != nil {
+	if err := dao.GormSession.Model(&model.Casem{}).Count(&cnt).Error; err != nil {
 		return nil, err, 0
 	}
 
@@ -242,9 +242,9 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	//是否已登入
 	var err error
 	if account != "" {
-		err = dao.SqlSession.Select("*").Where("case_id=?", caseId).First(&casem).Error
+		err = dao.GormSession.Select("*").Where("case_id=?", caseId).First(&casem).Error
 	} else {
-		err = dao.SqlSession.Select(fields).Where("case_id=?", caseId).First(&casem).Error
+		err = dao.GormSession.Select(fields).Where("case_id=?", caseId).First(&casem).Error
 	}
 
 	if err != nil {
@@ -255,7 +255,7 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	if account != "" {
 
 		user := &model.User{}
-		if userErr := dao.SqlSession.Select("vip_date").Where("account=?", account).First(&user).Error; userErr != nil {
+		if userErr := dao.GormSession.Select("vip_date").Where("account=?", account).First(&user).Error; userErr != nil {
 			return nil, nil, userErr
 		}
 
@@ -302,7 +302,7 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	}
 
 	var files []model.CaseFile
-	filesErr := dao.SqlSession.Select("*").Where("case_id=?", caseId).Find(&files).Error
+	filesErr := dao.GormSession.Select("*").Where("case_id=?", caseId).Find(&files).Error
 	if filesErr != nil {
 		return nil, nil, err
 	} else {

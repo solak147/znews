@@ -1,16 +1,24 @@
 package dao
 
 import (
+	"database/sql"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
 var (
-	SqlSession *gorm.DB
+	GormSession *gorm.DB
+	DbSession   *sql.DB
 )
 
-func Initialize(dbConfig string) (*gorm.DB, error) {
+func GormInit(dbConfig string) (*gorm.DB, error) {
 	var err error
-	SqlSession, err = gorm.Open(mysql.Open(dbConfig), &gorm.Config{})
-	return SqlSession, err
+	GormSession, err = gorm.Open(mysql.Open(dbConfig), &gorm.Config{})
+	return GormSession, err
+}
+
+func DbInit(dbConfig string) (*sql.DB, error) {
+	DbSession, err := sql.Open("mysql", dbConfig)
+	return DbSession, err
 }

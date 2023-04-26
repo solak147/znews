@@ -14,7 +14,7 @@ var UserFields = []string{"account", "email"}
 
 func GetUser(account string) (*model.User, error) {
 	user := &model.User{}
-	err := dao.SqlSession.Select("*").Where("account=?", account).First(&user).Error
+	err := dao.GormSession.Select("*").Where("account=?", account).First(&user).Error
 	if err != nil {
 		return nil, err
 	} else {
@@ -24,7 +24,7 @@ func GetUser(account string) (*model.User, error) {
 
 func GetUserByPwd(account string, password string) (*model.User, error) {
 	user := &model.User{}
-	err := dao.SqlSession.Select(UserFields).Where("account=? and password=?", account, password).First(&user).Error
+	err := dao.GormSession.Select(UserFields).Where("account=? and password=?", account, password).First(&user).Error
 	if err != nil {
 		return nil, err
 	} else {
@@ -50,7 +50,7 @@ func UpdateUser(form model.ProfileSave) error {
 		user.Password = form.Password
 	}
 
-	err := dao.SqlSession.Model(&model.User{}).Where("account = ?", form.Account).Updates(user).Error
+	err := dao.GormSession.Model(&model.User{}).Where("account = ?", form.Account).Updates(user).Error
 	if err != nil {
 		return err
 	} else {
@@ -90,7 +90,7 @@ func Register(form model.RegisterStep3) error {
 		Introduction: form.Introduction,
 	}
 
-	insertErr := dao.SqlSession.Model(&model.User{}).Create(&user).Error
+	insertErr := dao.GormSession.Model(&model.User{}).Create(&user).Error
 	return insertErr
 }
 
@@ -98,7 +98,7 @@ func CheckUserExit(account string) bool {
 	result := false
 	var user model.User
 
-	dbResult := dao.SqlSession.Where("account = ?", account).Find(&user)
+	dbResult := dao.GormSession.Where("account = ?", account).Find(&user)
 	if dbResult.Error != nil {
 		middleware.Logger().WithFields(logrus.Fields{
 			"name": "Get User Info Failed:",
