@@ -19,6 +19,7 @@ func GormInit(dbConfig string) (*gorm.DB, error) {
 }
 
 func DbInit(dbConfig string) (*sql.DB, error) {
-	DbSession, err := sql.Open("mysql", dbConfig)
+	var err error
+	DbSession, err = sql.Open("mysql", dbConfig)
 	return DbSession, err
 }

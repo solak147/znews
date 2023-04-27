@@ -2,16 +2,11 @@ package service
 
 import (
 	"znews/app/dao"
+	"znews/app/model"
 )
 
-type msgRec struct {
-	account string
-	message string
-	crtDte  string
-}
-
-func GetMsgRecord(account string) ([]msgRec, error) {
-	var msgArr []msgRec
+func GetMsgRecord(account string) ([]model.MsgRec, error) {
+	var msgArr []model.MsgRec
 
 	// 执行 SQL 查询语句
 	query := `select account, 
@@ -32,8 +27,8 @@ func GetMsgRecord(account string) ([]msgRec, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var msg msgRec
-		if err := rows.Scan(&msg.account, &msg.message, &msg.crtDte); err != nil {
+		var msg model.MsgRec
+		if err := rows.Scan(&msg.Account, &msg.CrtDte, &msg.Message); err != nil {
 			return nil, err
 		}
 		msgArr = append(msgArr, msg)
@@ -44,9 +39,4 @@ func GetMsgRecord(account string) ([]msgRec, error) {
 	}
 	return msgArr, nil
 
-	// if err := dao.GormSession.Select("*").Where("account_from=? or account_to=?", account, account).Order("created_at ASC").Find(&msg).Error; err != nil {
-	// 	return nil, err
-	// } else {
-	// 	return msg, nil
-	// }
 }

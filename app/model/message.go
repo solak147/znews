@@ -11,6 +11,8 @@ type MsgRecord struct {
 	CreatedAt   time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
 }
 
-type Msg struct {
-	Account string `gorm:"size:50;not null;" json:"account"`
+type MsgRec struct {
+	Account string `json:"account"`
+	Message string `json:"message"`
+	CrtDte  string `json:"crtDte"`
 }
