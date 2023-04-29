@@ -2,13 +2,14 @@ package service
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"time"
+	"znews/app/middleware"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 )
 
 var upgrader = websocket.Upgrader{
@@ -24,7 +25,9 @@ var clients = make(map[string]*websocket.Conn)
 func Socket(c *gin.Context) {
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Println("Upgrade:", err)
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "Socket upgrade faild",
+		}).Error(err.Error())
 		return
 	}
 	defer conn.Close()
@@ -32,19 +35,30 @@ func Socket(c *gin.Context) {
 	// 设置读取超时时间为 60 秒
 	conn.SetReadDeadline(time.Now().Add(5 * time.Minute))
 
-	var username string
-
-	// 读取客户端发送的第一条消息，获取客户端的用户名
+	//读取客户端发送的第一条消息，获取客户端的用户名
 	_, p, err := conn.ReadMessage()
 	if err != nil {
-		log.Println("ReadMessage:", err)
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "Socket readMessage faild",
+		}).Error(err.Error())
 		return
 	}
-	username = string(p)
+	token := string(p)
+
+	mc, err := middleware.ParseToken(token)
+	if err != nil {
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "Socket parseToken faild",
+		}).Error(err.Error())
+		return
+	}
+	username := mc.Account
 
 	// 存储客户端连接
 	if clients[username] == nil {
 		clients[username] = conn
+	} else {
+		return
 	}
 
 	for {
@@ -53,14 +67,15 @@ func Socket(c *gin.Context) {
 
 		// 判断是否为超时错误
 		if netErr, ok := err.(net.Error); ok && netErr.Timeout() {
-			fmt.Println("WebSocket connection closed due to timeout.")
 			conn.Close()
 			delete(clients, username) // 删除断开连接的客户端
 			break
 		}
 
 		if err != nil {
-			log.Println("ReadMessage:", err)
+			middleware.Logger().WithFields(logrus.Fields{
+				"title": "Socket readMessage faild",
+			}).Error(err.Error())
 			delete(clients, username) // 删除断开连接的客户端
 			return
 		}
@@ -73,14 +88,18 @@ func Socket(c *gin.Context) {
 		// 查找目标客户端的连接
 		targetConn, ok := clients[target]
 		if !ok {
-			log.Println("Client not found:", target)
+			middleware.Logger().WithFields(logrus.Fields{
+				"title": "Socket client not found",
+			}).Error(target)
 			continue
 		}
 
 		// 发送消息给目标客户端
 		err = targetConn.WriteMessage(messageType, []byte(message))
 		if err != nil {
-			log.Println("WriteMessage:", err)
+			middleware.Logger().WithFields(logrus.Fields{
+				"title": "Socket writeMessage faild",
+			}).Error(err.Error())
 			continue
 		}
 

@@ -52,10 +52,13 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	msg := r.Group("/message")
 	{
 		msg.GET("", controller.MsgController().GetMsgRecord)
+		msg.GET("/:toAccount", controller.MsgController().GetMsgRecordDetail)
+		msg.POST("/send", controller.MsgController().SendMsg)
 	}
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+
 }
 
 func corsMiddleware() gin.HandlerFunc {

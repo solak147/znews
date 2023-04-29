@@ -259,6 +259,74 @@ const docTemplate = `{
                 }
             }
         },
+        "/message/send": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "SendMsg",
+                "parameters": [
+                    {
+                        "description": "傳送訊息",
+                        "name": "msg",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.MsgSend"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/{toAccount}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "GetMsgRecordDetail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "訊息細節",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/profile/save": {
             "post": {
                 "produces": [
@@ -418,6 +486,19 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "123456"
+                }
+            }
+        },
+        "model.MsgSend": {
+            "type": "object",
+            "properties": {
+                "accountTo": {
+                    "type": "string",
+                    "example": "Mike"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "test"
                 }
             }
         },
