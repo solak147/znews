@@ -21,5 +21,9 @@ type MsgRec struct {
 
 type MsgSend struct {
 	Message   string `form:"message"  example:"test"`
-	AccountTo string `form:"AccountTo"  example:"Mike"`
+	AccountTo string `form:"accountTo"  example:"Mike"`
+}
+
+type MsgUpdateRead struct {
+	AccountFrom string `form:"accountFrom"  example:"Mike"`
 }

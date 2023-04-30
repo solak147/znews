@@ -58,6 +58,10 @@ func Socket(c *gin.Context) {
 	if clients[username] == nil {
 		clients[username] = conn
 	} else {
+		// test
+		// username = "test44@gmail.com"
+		// clients[username] = conn
+
 		return
 	}
 

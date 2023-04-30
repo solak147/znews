@@ -52,8 +52,11 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	msg := r.Group("/message")
 	{
 		msg.GET("", controller.MsgController().GetMsgRecord)
+		msg.GET("/chkNoRead", controller.MsgController().ChkNoRead)
 		msg.GET("/:toAccount", controller.MsgController().GetMsgRecordDetail)
 		msg.POST("/send", controller.MsgController().SendMsg)
+		msg.PUT("/updateRead", controller.MsgController().UpdateRead)
+
 	}
 
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")

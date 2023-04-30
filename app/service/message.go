@@ -66,3 +66,26 @@ func SendMsg(account string, m model.MsgSend) error {
 		return nil
 	}
 }
+
+func ChkNoRead(account string) (int64, error) {
+	var cnt int64
+	if err := dao.GormSession.Model(&model.MsgRecord{}).Where("account_to = ?", account).Select("count(*)").Count(&cnt).Error; err != nil {
+		return 0, err
+	} else {
+		return cnt, nil
+	}
+}
+
+func UpdateRead(to string, from string) error {
+
+	msg := &model.MsgRecord{
+		IsRead: "1",
+	}
+
+	err := dao.GormSession.Model(&model.MsgRecord{}).Where("account_from = ? and account_to = ?", from, to).Updates(msg).Error
+	if err != nil {
+		return err
+	} else {
+		return nil
+	}
+}
