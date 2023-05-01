@@ -57,8 +57,8 @@ type CreateCase struct {
 type Quote struct {
 	CaseId    string    `gorm:"primary_key;size:10;" json:"caseId"`
 	Account   string    `gorm:"primary_key;size:50;not null;" json:"account"`
-	PriceS    int       `gorm:"size:8;not null;" json:"priceS"`
-	PriceE    int       `gorm:"size:8;not null;" json:"priceE"`
+	PriceS    int       `gorm:"type:int;not null;" json:"priceS"`
+	PriceE    int       `gorm:"type:int;not null;" json:"priceE"`
 	Day       int       `gorm:"size:3;not null;" json:"day"`
 	Deal      int       `gorm:"size:1;default:0" json:"deal"`
 	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
