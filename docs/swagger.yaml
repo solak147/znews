@@ -148,6 +148,27 @@ info:
   title: Gin swagger
   version: 1.8.10
 paths:
+  /case/Quote:
+    post:
+      parameters:
+      - description: 新增報價
+        in: body
+        name: quote
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: 報價
+      tags:
+      - message
   /case/create:
     post:
       parameters:
@@ -319,6 +340,26 @@ paths:
       summary: GetMsgRecordDetail
       tags:
       - message
+  /message/chkNoRead:
+    get:
+      parameters:
+      - description: 檢查是否有未讀訊息
+        in: path
+        name: msg
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: chkNoRead
+      tags:
+      - message
   /message/send:
     post:
       parameters:
@@ -338,6 +379,26 @@ paths:
       security:
       - BearerAuth: []
       summary: SendMsg
+      tags:
+      - message
+  /message/updateRead:
+    put:
+      parameters:
+      - description: 更新已讀
+        in: path
+        name: msg
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: UpdateRead
       tags:
       - message
   /profile/save:

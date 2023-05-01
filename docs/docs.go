@@ -21,6 +21,41 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/case/Quote": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "報價",
+                "parameters": [
+                    {
+                        "description": "新增報價",
+                        "name": "quote",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/case/create": {
             "post": {
                 "produces": [
@@ -259,6 +294,39 @@ const docTemplate = `{
                 }
             }
         },
+        "/message/chkNoRead": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "chkNoRead",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "檢查是否有未讀訊息",
+                        "name": "msg",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/message/send": {
             "post": {
                 "security": [
@@ -282,6 +350,39 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.MsgSend"
                         }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/updateRead": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "UpdateRead",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "更新已讀",
+                        "name": "msg",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {

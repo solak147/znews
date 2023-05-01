@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -236,7 +237,7 @@ func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 
 func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFile, error) {
 
-	fields := []string{"title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at"}
+	fields := []string{"case_id", "title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at"}
 	casem := &model.Casem{}
 
 	//是否已登入
@@ -307,5 +308,40 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 		return nil, nil, err
 	} else {
 		return casem, files, nil
+	}
+}
+
+func Quote(account string, m model.QuoteForm) error {
+	//檢查是否有購買vip
+	user := &model.User{}
+	if err := dao.GormSession.Where("account = ?", account).Select("vip_date").First(&user).Error; err != nil {
+		return err
+	}
+
+	vipDate := user.VipDate
+	//使用 time.Time 类型的零值来表示“无效”时间值
+	if vipDate.IsZero() {
+		return errors.New("請先購買vip才能使用此功能")
+	}
+
+	now := time.Now()
+
+	if now.After(vipDate) {
+		return errors.New("vip已過期")
+	}
+
+	quote := model.Quote{
+		CaseId:  m.CaseId,
+		Account: account,
+		PriceS:  m.PriceS,
+		PriceE:  m.PriceE,
+		Day:     m.Day,
+	}
+
+	err := dao.GormSession.Model(&model.Quote{}).Create(&quote).Error
+	if err != nil {
+		return err
+	} else {
+		return nil
 	}
 }

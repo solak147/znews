@@ -125,3 +125,34 @@ func (ca CasesController) GetCaseDetail(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 報價
+// @Tags message
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param quote body string true "新增報價"
+// @Success 200 string json successful return data
+// @Router /case/Quote [post]
+func (ca CasesController) Quote(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	var form model.QuoteForm
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
+		return
+	}
+
+	err := service.Quote(fmt.Sprintf("%v", account), form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}

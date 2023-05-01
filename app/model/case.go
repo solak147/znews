@@ -52,3 +52,23 @@ type CreateCase struct {
 	Line        string   `form:"line"  example:"imlineid"`
 	FilesName   []string `form:"filesName"  example:"[a.jpg]"`
 }
+
+// 報價
+type Quote struct {
+	CaseId    string    `gorm:"primary_key;size:10;" json:"caseId"`
+	Account   string    `gorm:"primary_key;size:50;not null;" json:"account"`
+	PriceS    int       `gorm:"size:8;not null;" json:"priceS"`
+	PriceE    int       `gorm:"size:8;not null;" json:"priceE"`
+	Day       int       `gorm:"size:3;not null;" json:"day"`
+	Deal      int       `gorm:"size:1;default:0" json:"deal"`
+	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
+}
+
+type QuoteForm struct {
+	CaseId  string `form:"account"  example:"202304005"`
+	Account string `form:"account"  example:"kevin@gmail.com"`
+	PriceS  int    `form:"priceS"  example:"1000"`
+	PriceE  int    `form:"priceE"  example:"2000"`
+	Day     int    `form:"day"  example:"10"`
+}
