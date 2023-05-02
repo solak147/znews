@@ -12,7 +12,7 @@ func GetMsgRecord(account string) ([]model.MsgRec, error) {
 	query := `select account, 
 					(SELECT MAX(created_at) FROM msg_records WHERE (account_from = ? and account_to = a.account) or (account_from = a.account and account_to = ? )) crtDte, 
 					(SELECT message FROM msg_records WHERE (account_from = ? and account_to = a.account) or (account_from = a.account and account_to = ? ) ORDER BY created_at DESC LIMIT 1) message,
-					(SELECT COUNT(*) FROM msg_records WHERE account_from = ? and account_to = a.account AND is_read = '0') notReadCnt  
+					(SELECT COUNT(*) FROM msg_records WHERE account_from = a.account and account_to = ? AND is_read = '0') notReadCnt  
 				FROM (
 					SELECT account_to account
 					FROM msg_records WHERE account_from = ? GROUP BY account_to 
@@ -69,7 +69,7 @@ func SendMsg(account string, m model.MsgSend) error {
 
 func ChkNoRead(account string) (int64, error) {
 	var cnt int64
-	if err := dao.GormSession.Model(&model.MsgRecord{}).Where("account_to = ?", account).Select("count(*)").Count(&cnt).Error; err != nil {
+	if err := dao.GormSession.Model(&model.MsgRecord{}).Where("account_to = ? and is_read = '0'", account).Select("count(*)").Count(&cnt).Error; err != nil {
 		return 0, err
 	} else {
 		return cnt, nil

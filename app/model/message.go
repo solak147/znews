@@ -9,6 +9,7 @@ type MsgRecord struct {
 	AccountTo   string    `gorm:"size:50;not null;" json:"accountTo"`
 	Message     string    `gorm:"size:100;not null;" json:"message"`
 	IsRead      string    `gorm:"size:1;default:0;" json:"isRead"`
+	IsSystem    string    `gorm:"size:1;default:0;" json:"isSystem"`
 	CreatedAt   time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
 }
 

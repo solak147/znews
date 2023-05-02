@@ -98,13 +98,14 @@ func (ca CasesController) GetCaseDetail(c *gin.Context) {
 	var (
 		data  *model.Casem
 		files []model.CaseFile
+		isVip bool
 		err   error
 	)
 
 	if val, exit := c.Get("account"); exit {
-		data, files, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
+		data, files, isVip, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
 	} else {
-		data, files, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
+		data, files, isVip, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
 	}
 
 	if err != nil {
@@ -122,6 +123,7 @@ func (ca CasesController) GetCaseDetail(c *gin.Context) {
 			"msg":   "Success",
 			"data":  data,
 			"files": files,
+			"isVip": isVip,
 		})
 	}
 }

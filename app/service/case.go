@@ -44,7 +44,7 @@ func CreateCase(form model.CreateCase) error {
 		return err
 	}
 
-	if err := regexpRigister(`^.{1,200}$`, form.WorkContent); err != nil {
+	if err := regexpRigister(`^[\s\S]{1,200}$`, form.WorkContent); err != nil {
 		return err
 	}
 
@@ -235,7 +235,7 @@ func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 	return data, nil, cnt
 }
 
-func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFile, error) {
+func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFile, bool, error) {
 
 	fields := []string{"case_id", "account", "title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at"}
 	casem := &model.Casem{}
@@ -249,24 +249,27 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	}
 
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, false, err
 	}
 
 	// vip是否到期
+	var isVip bool
 	if account != "" {
 
 		user := &model.User{}
 		if userErr := dao.GormSession.Select("vip_date").Where("account=?", account).First(&user).Error; userErr != nil {
-			return nil, nil, userErr
+			return nil, nil, false, userErr
 		}
 
 		// 计算时间戳与当前时间之间的时间差
-		duration := time.Since(user.VipDate)
-
+		// duration := time.Since(user.VipDate)
 		// 计算时间差对应的月数
-		months := int(duration.Hours() / 24 / 30)
+		// months := int(duration.Hours() / 24 / 30)
 
-		if months > 1 {
+		now := time.Now()
+
+		if now.After(user.VipDate) {
+
 			if len(casem.Name) > 3 {
 				casem.Name = casem.Name[:1] + "****" + casem.Name[4:]
 			} else {
@@ -299,22 +302,25 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 
 			emailArr := strings.Split(casem.Email, "@")
 			casem.Email = "*****@" + emailArr[1]
+		} else {
+			isVip = true
 		}
 	}
 
 	var files []model.CaseFile
 	filesErr := dao.GormSession.Select("*").Where("case_id=?", caseId).Find(&files).Error
 	if filesErr != nil {
-		return nil, nil, err
+		return nil, nil, isVip, err
 	} else {
-		return casem, files, nil
+		return casem, files, isVip, nil
 	}
 }
 
+// todo trnasaction
 func Quote(account string, m model.QuoteForm) error {
 	//檢查是否有購買vip
 	user := &model.User{}
-	if err := dao.GormSession.Where("account = ?", account).Select("vip_date").First(&user).Error; err != nil {
+	if err := dao.GormSession.Where("account = ?", account).Select("account, vip_date").First(&user).Error; err != nil {
 		return err
 	}
 
@@ -332,7 +338,7 @@ func Quote(account string, m model.QuoteForm) error {
 
 	quote := model.Quote{
 		CaseId:  m.CaseId,
-		Account: account,
+		Account: account, //報價者
 		PriceS:  m.PriceS,
 		PriceE:  m.PriceE,
 		Day:     m.Day,
@@ -341,6 +347,23 @@ func Quote(account string, m model.QuoteForm) error {
 	err := dao.GormSession.Model(&model.Quote{}).Create(&quote).Error
 	if err != nil {
 		return err
+	}
+
+	casem := &model.Casem{}
+	if err := dao.GormSession.Where("case_id = ?", m.CaseId).Select("account").First(&casem).Error; err != nil {
+		return err
+	}
+
+	msg := model.MsgRecord{
+		AccountFrom: account,
+		AccountTo:   casem.Account,
+		Message:     fmt.Sprintf("%s-=%s-=%d-=%d-=%d", m.CaseId, m.Title, m.PriceS, m.PriceE, m.Day),
+		IsSystem:    "1",
+	}
+
+	msgErr := dao.GormSession.Model(&model.MsgRecord{}).Create(&msg).Error
+	if msgErr != nil {
+		return msgErr
 	} else {
 		return nil
 	}

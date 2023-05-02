@@ -66,6 +66,7 @@ type Quote struct {
 }
 
 type QuoteForm struct {
+	Title   string `form:"title"  example:"app繪圖軟體製作"`
 	CaseId  string `form:"account"  example:"202304005"`
 	Account string `form:"account"  example:"kevin@gmail.com"`
 	PriceS  int    `form:"priceS"  example:"1000"`
