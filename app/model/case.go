@@ -26,6 +26,8 @@ type Casem struct {
 	Email       string `gorm:"size:50;not null" json:"email"`
 	Line        string `gorm:"size:20;" json:"line"`
 
+	Status string `gorm:"size:1;default:0;COMMENT:'0:已發案,1:已成交';" json:"status"`
+
 	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
 }

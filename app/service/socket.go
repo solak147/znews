@@ -62,6 +62,11 @@ func Socket(c *gin.Context) {
 		// username = "test44@gmail.com"
 		// clients[username] = conn
 
+		cm := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "連線已存在")
+		if err := conn.WriteMessage(websocket.CloseMessage, cm); err != nil {
+			// handle error
+		}
+		conn.Close()
 		return
 	}
 

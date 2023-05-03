@@ -153,3 +153,34 @@ func (m MsgsController) UpdateRead(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary Deal
+// @Tags message
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param msg body string true "成交"
+// @Success 200 string json successful return data
+// @Router /message/deal [post]
+func (m MsgsController) Deal(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	var form model.MsgDeal
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
+		return
+	}
+
+	err := service.MsgDeal(fmt.Sprintf("%v", account), form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  " Deal failed : " + err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}

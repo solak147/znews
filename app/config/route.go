@@ -56,6 +56,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		msg.GET("/chkNoRead", controller.MsgController().ChkNoRead)
 		msg.GET("/:toAccount", controller.MsgController().GetMsgRecordDetail)
 		msg.POST("/send", controller.MsgController().SendMsg)
+		msg.POST("/deal", controller.MsgController().Deal)
 		msg.PUT("/updateRead", controller.MsgController().UpdateRead)
 
 	}
