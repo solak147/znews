@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -204,4 +205,62 @@ func (u UsersController) UpdateProfile(c *gin.Context) {
 		})
 	}
 
+}
+
+// @Summary SohoSetting
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param soho body string true "接案設定"
+// @Success 200 string json successful return data
+// @Router /member/sohoSetting [post]
+func (u UsersController) SohoSetting(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	var form model.SohoSettingForm
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Form bind error": err.Error()})
+		return
+	}
+
+	if err := service.SohoSetting(fmt.Sprintf("%v", account), form); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Successfully save",
+		})
+	}
+}
+
+// @Summary SohoSetting
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param soho path string true "接案設定初始值"
+// @Success 200 string json successful return data
+// @Router /member/sohoSettingInit [get]
+func (u UsersController) SohoSettingInit(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	if err := service.SohoSettingInit(fmt.Sprintf("%v", account)); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
 }

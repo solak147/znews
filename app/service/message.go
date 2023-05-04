@@ -81,7 +81,7 @@ func ChkNoRead(account string) (int64, error) {
 
 func UpdateRead(to string, from string) error {
 
-	msg := &model.MsgRecord{
+	msg := model.MsgRecord{
 		IsRead: "1",
 	}
 
@@ -95,7 +95,7 @@ func UpdateRead(to string, from string) error {
 
 func MsgDeal(account string, m model.MsgDeal) error {
 
-	casem := &model.Casem{}
+	casem := model.Casem{}
 	//檢查案件是否已成交
 	if err := dao.GormSession.Select("status").Where("case_id=?", m.CaseId).First(&casem).Error; err != nil {
 		return err
@@ -105,33 +105,37 @@ func MsgDeal(account string, m model.MsgDeal) error {
 		return errors.New("案件已有成交紀錄")
 	}
 
+	tx := dao.GormSession.Begin()
+
 	msg := model.MsgRecord{
 		AccountFrom: account,
 		AccountTo:   m.Quoter,
 		Message:     fmt.Sprintf("%s-=%s-=%d-=%d", m.CaseId, m.Title, m.PriceS, m.PriceE),
 		IsSystem:    "2",
 	}
-
-	msgErr := dao.GormSession.Model(&model.MsgRecord{}).Create(&msg).Error
-	if msgErr != nil {
-		return msgErr
+	if err := tx.Model(&model.MsgRecord{}).Create(&msg).Error; err != nil {
+		tx.Rollback()
+		return err
 	}
 
-	quote := &model.Quote{
+	// 更新報價紀錄 1:已成交
+	quote := model.Quote{
 		Deal: 1,
 	}
-
-	if err := dao.GormSession.Model(&model.Quote{}).Where("case_id = ? and account = ?", m.CaseId, m.Quoter).Updates(quote).Error; err != nil {
+	if err := tx.Model(&model.Quote{}).Where("case_id = ? and account = ?", m.CaseId, m.Quoter).Updates(quote).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 
 	// 更新案件狀態：1已成交
-	c := &model.Casem{
+	c := model.Casem{
 		Status: "1",
 	}
-	if err := dao.GormSession.Model(&model.Casem{}).Where("case_id = ?", m.CaseId).Updates(c).Error; err != nil {
+	if err := tx.Model(&model.Casem{}).Where("case_id = ?", m.CaseId).Updates(c).Error; err != nil {
+		tx.Rollback()
 		return err
 	} else {
+		tx.Commit()
 		return nil
 	}
 }

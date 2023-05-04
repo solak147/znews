@@ -18,7 +18,7 @@ type Casem struct {
 	WorkContent   string `gorm:"size:200;not null;" json:"workContent"`
 
 	Name        string `gorm:"size:20;not null;" json:"name"`
-	Phone       string `gorm:"size:20;not null;" json:"phone"`
+	Phone       string `gorm:"size:15;not null;" json:"phone"`
 	CityTalk    string `gorm:"size:4;" json:"cityTalk"`
 	CityTalk2   string `gorm:"size:10;" json:"cityTalk2"`
 	Extension   string `gorm:"size:5;" json:"extension"`

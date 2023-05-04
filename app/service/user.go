@@ -13,22 +13,22 @@ import (
 var UserFields = []string{"account", "email"}
 
 func GetUser(account string) (*model.User, error) {
-	user := &model.User{}
+	user := model.User{}
 	err := dao.GormSession.Select("*").Where("account=?", account).First(&user).Error
 	if err != nil {
 		return nil, err
 	} else {
-		return user, nil
+		return &user, nil
 	}
 }
 
 func GetUserByPwd(account string, password string) (*model.User, error) {
-	user := &model.User{}
+	user := model.User{}
 	err := dao.GormSession.Select(UserFields).Where("account=? and password=?", account, password).First(&user).Error
 	if err != nil {
 		return nil, err
 	} else {
-		return user, nil
+		return &user, nil
 	}
 }
 
@@ -107,4 +107,79 @@ func CheckUserExit(account string) bool {
 		result = true
 	}
 	return result
+}
+
+func SohoSetting(account string, form model.SohoSettingForm) error {
+
+	if err := regexpRigister(`^\S.{0,13}\S?$`, form.Name); err != nil {
+		return err
+	}
+
+	if err := regexpRigister(`^\d{1,15}$`, form.Phone); err != nil {
+		return err
+	}
+
+	if err := regexpRigister(`^\d{0,4}$`, form.CityTalk); err != nil {
+		return err
+	}
+
+	if err := regexpRigister(`^\d{0,10}$`, form.CityTalk2); err != nil {
+		return err
+	}
+
+	if err := regexpRigister(`^\d{0,5}$`, form.Extension); err != nil {
+		return err
+	}
+
+	if err := regexpRigister(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, form.Email); err != nil {
+		return err
+	}
+
+	if err := regexpRigister(`^[\s\S]{1,200}$`, form.Description); err != nil {
+		return err
+	}
+
+	set := model.SohoSetting{
+		Account:     account,
+		Open:        form.Open,
+		Name:        form.Name,
+		Role:        form.Role,
+		Phone:       form.Phone,
+		CityTalk:    form.CityTalk,
+		CityTalk2:   form.CityTalk2,
+		Extension:   form.Extension,
+		Email:       form.Email,
+		Zipcode:     form.Zipcode,
+		Type:        form.Type,
+		Exp:         form.ExpVal,
+		Description: form.Description,
+	}
+
+	insertErr := dao.GormSession.Model(&model.SohoSetting{}).Create(&set).Error
+	if insertErr != nil {
+		return insertErr
+	} else {
+		return nil
+	}
+}
+
+func SohoSettingInit(account string) error {
+
+	set := model.SohoSetting{}
+
+	if err := dao.GormSession.Select("*").Where("account=?", account).First(&set).Error; err != nil {
+
+		user := model.User{}
+
+		if err := dao.GormSession.Select("*").Where("account=?", account).First(&user).Error; err != nil {
+			return err
+		}
+
+		return err
+
+	} else {
+
+	}
+
+	return nil
 }

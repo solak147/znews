@@ -32,7 +32,9 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	member := r.Group("/member")
 	{
 		member.GET("/profile/:account", controller.UserController().GetProfile)
+		member.GET("/sohoSettingInit", controller.UserController().SohoSettingInit)
 		member.POST("/profile/save", controller.UserController().UpdateProfile)
+		member.POST("/sohoSetting", controller.UserController().SohoSetting)
 
 		//member.GET("/:id", middleware.JWTAuthMiddleware(), cache.CacheByRequestURI(m, 2*time.Hour), controller.UserController().GetUser)
 	}

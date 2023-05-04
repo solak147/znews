@@ -12,6 +12,7 @@ import (
 	"znews/app/model"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 var (
@@ -76,8 +77,11 @@ func CreateCase(form model.CreateCase) error {
 		return err
 	}
 
-	caseId, genErr := genCaseId()
+	tx := dao.GormSession.Begin()
+
+	caseId, genErr := genCaseId(tx)
 	if genErr != nil {
+		tx.Rollback()
 		return genErr
 	}
 
@@ -104,8 +108,9 @@ func CreateCase(form model.CreateCase) error {
 		Line:        form.Line,
 	}
 
-	err := dao.GormSession.Model(&model.Casem{}).Create(&casem).Error
+	err := tx.Model(&model.Casem{}).Create(&casem).Error
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
@@ -115,15 +120,17 @@ func CreateCase(form model.CreateCase) error {
 			FileName: name,
 		}
 
-		err := dao.GormSession.Model(&model.CaseFile{}).Create(&file).Error
+		err := tx.Model(&model.CaseFile{}).Create(&file).Error
 		if err != nil {
+			tx.Rollback()
 			return err
 		}
 	}
+	tx.Commit()
 	return nil
 }
 
-func genCaseId() (string, error) {
+func genCaseId(tx *gorm.DB) (string, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -133,7 +140,7 @@ func genCaseId() (string, error) {
 
 	serial := model.SerialNo{}
 
-	err := dao.GormSession.Select("*").Where("year=? and month=?", year, monthFmt).First(&serial).Error
+	err := tx.Select("*").Where("year=? and month=?", year, monthFmt).First(&serial).Error
 	if err != nil {
 		return "", err
 	}
@@ -142,7 +149,7 @@ func genCaseId() (string, error) {
 		No: serial.No + 1,
 	}
 
-	insErr := dao.GormSession.Model(&model.SerialNo{}).Where("year=? and month=?", year, monthFmt).Updates(uptNo).Error
+	insErr := tx.Model(&model.SerialNo{}).Where("year=? and month=?", year, monthFmt).Updates(uptNo).Error
 	if insErr != nil {
 		return "", insErr
 	}
@@ -238,7 +245,7 @@ func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFile, bool, error) {
 
 	fields := []string{"case_id", "account", "title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at"}
-	casem := &model.Casem{}
+	casem := model.Casem{}
 
 	//是否已登入
 	var err error
@@ -256,9 +263,9 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	var isVip bool
 	if account != "" {
 
-		user := &model.User{}
-		if userErr := dao.GormSession.Select("vip_date").Where("account=?", account).First(&user).Error; userErr != nil {
-			return nil, nil, false, userErr
+		user := model.User{}
+		if err := dao.GormSession.Select("vip_date").Where("account=?", account).First(&user).Error; err != nil {
+			return nil, nil, false, err
 		}
 
 		// 计算时间戳与当前时间之间的时间差
@@ -312,14 +319,14 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	if filesErr != nil {
 		return nil, nil, isVip, err
 	} else {
-		return casem, files, isVip, nil
+		return &casem, files, isVip, nil
 	}
 }
 
 // todo trnasaction
 func Quote(account string, m model.QuoteForm) error {
 	//檢查是否有購買vip
-	user := &model.User{}
+	user := model.User{}
 	if err := dao.GormSession.Where("account = ?", account).Select("account, vip_date").First(&user).Error; err != nil {
 		return err
 	}
@@ -349,7 +356,7 @@ func Quote(account string, m model.QuoteForm) error {
 		return err
 	}
 
-	casem := &model.Casem{}
+	casem := model.Casem{}
 	if err := dao.GormSession.Where("case_id = ?", m.CaseId).Select("account").First(&casem).Error; err != nil {
 		return err
 	}
