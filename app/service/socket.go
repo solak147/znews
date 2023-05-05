@@ -50,6 +50,14 @@ func Socket(c *gin.Context) {
 		middleware.Logger().WithFields(logrus.Fields{
 			"title": "Socket parseToken faild",
 		}).Error(err.Error())
+
+		cm := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "token已逾期")
+		if err := conn.WriteMessage(websocket.CloseMessage, cm); err != nil {
+			middleware.Logger().WithFields(logrus.Fields{
+				"title": "Socket WriteCloseMessage : token faild",
+			}).Error(err.Error())
+		}
+		conn.Close()
 		return
 	}
 	username := mc.Account
@@ -64,7 +72,9 @@ func Socket(c *gin.Context) {
 
 		cm := websocket.FormatCloseMessage(websocket.CloseNormalClosure, "連線已存在")
 		if err := conn.WriteMessage(websocket.CloseMessage, cm); err != nil {
-			// handle error
+			middleware.Logger().WithFields(logrus.Fields{
+				"title": "Socket WriteCloseMessage : have connect faild",
+			}).Error(err.Error())
 		}
 		conn.Close()
 		return

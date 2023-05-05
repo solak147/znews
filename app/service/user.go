@@ -163,23 +163,25 @@ func SohoSetting(account string, form model.SohoSettingForm) error {
 	}
 }
 
-func SohoSettingInit(account string) error {
+func SohoSettingInit(account string) (interface{}, error) {
 
 	set := model.SohoSetting{}
-
 	if err := dao.GormSession.Select("*").Where("account=?", account).First(&set).Error; err != nil {
 
-		user := model.User{}
+		if err.Error() == "record not found" {
 
-		if err := dao.GormSession.Select("*").Where("account=?", account).First(&user).Error; err != nil {
-			return err
+			user := model.User{}
+			if err := dao.GormSession.Select("name,phone,zipcode,email").Where("account=?", account).First(&user).Error; err != nil {
+				return nil, err
+			}
+			return user, nil
+
+		} else {
+			return nil, err
 		}
-
-		return err
-
-	} else {
 
 	}
 
-	return nil
+	return set, nil
+
 }

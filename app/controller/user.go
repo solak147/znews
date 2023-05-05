@@ -250,7 +250,7 @@ func (u UsersController) SohoSetting(c *gin.Context) {
 func (u UsersController) SohoSettingInit(c *gin.Context) {
 	account, _ := c.Get("account")
 
-	if err := service.SohoSettingInit(fmt.Sprintf("%v", account)); err != nil {
+	if data, err := service.SohoSettingInit(fmt.Sprintf("%v", account)); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -261,6 +261,7 @@ func (u UsersController) SohoSettingInit(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"code": 0,
 			"msg":  "Success",
+			"data": data,
 		})
 	}
 }
