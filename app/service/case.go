@@ -158,7 +158,7 @@ func genCaseId(tx *gorm.DB) (string, error) {
 	return caseId, nil
 }
 
-func GetCase(c *gin.Context) ([]interface{}, error, int64) {
+func GetCase(c *gin.Context) ([]interface{}, error, int) {
 
 	search := c.Query("search")
 	city := c.Query("city")
@@ -234,10 +234,15 @@ func GetCase(c *gin.Context) ([]interface{}, error, int64) {
 		return nil, eserr, 0
 	}
 
-	var cnt int64
-	if err := dao.GormSession.Model(&model.Casem{}).Count(&cnt).Error; err != nil {
-		return nil, err, 0
+	cnt, cnterr := dao.GetCaseCount()
+	if cnterr != nil {
+		return nil, cnterr, 0
 	}
+
+	// var cnt int64
+	// if err := dao.GormSession.Model(&model.Casem{}).Count(&cnt).Error; err != nil {
+	// 	return nil, err, 0
+	// }
 
 	return data, nil, cnt
 }
