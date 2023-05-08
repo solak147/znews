@@ -32,8 +32,15 @@ func main() {
 		panic(envErr)
 	}
 
+	env := os.Getenv("ENV")
 	port := os.Getenv("PORT")
-	dbConfig := os.Getenv("DB_CONFIG")
+
+	var dbConfig string
+	if env == "dev" {
+		dbConfig = os.Getenv("DB_CONFIG_DEV")
+	} else if env == "product" {
+		dbConfig = os.Getenv("DB_CONFIG")
+	}
 
 	db, ormErr := dao.GormInit(dbConfig)
 	if ormErr != nil {

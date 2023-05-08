@@ -40,7 +40,7 @@ func (u UsersController) CheckUserExit(c *gin.Context) {
 		return
 	}
 
-	if service.CheckUserExit(form.Email) {
+	if !service.CheckUserExit(form.Email) {
 
 		// 設定隨機種子
 		rand.Seed(time.Now().UnixNano())
@@ -61,9 +61,8 @@ func (u UsersController) CheckUserExit(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"status": -1,
-			"msg":    "Account has exit",
-			"data":   nil,
+			"code": -1,
+			"msg":  "Account has exit",
 		})
 	}
 

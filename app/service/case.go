@@ -254,7 +254,7 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 
 	//是否已登入
 	var err error
-	if account != "" {
+	if account != "<nil>" {
 		err = dao.GormSession.Select("*").Where("case_id=?", caseId).First(&casem).Error
 	} else {
 		err = dao.GormSession.Select(fields).Where("case_id=?", caseId).First(&casem).Error
@@ -266,7 +266,7 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 
 	// vip是否到期
 	var isVip bool
-	if account != "" {
+	if account != "<nil>" {
 
 		user := model.User{}
 		if err := dao.GormSession.Select("vip_date").Where("account=?", account).First(&user).Error; err != nil {
