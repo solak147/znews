@@ -26,20 +26,10 @@ func CaseController() CasesController {
 // @Router /case/create [post]
 func (ca CasesController) CreateCase(c *gin.Context) {
 
-	var form model.CreateCase
-	if err := c.ShouldBind(&form); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": -1,
-			"msg":  "表單綁定失敗 : " + err.Error(),
-		})
-		return
-	}
-
-	err := service.CreateCase(form)
+	err := service.CreateCase(c)
 	if err != nil {
 		middleware.Logger().WithFields(logrus.Fields{
-			"title":  "Create case Failed:",
-			"accout": form.Account,
+			"title": "Create case Failed:",
 		}).Error(err.Error)
 
 		c.JSON(http.StatusBadRequest, gin.H{

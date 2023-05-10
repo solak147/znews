@@ -21,20 +21,20 @@ func FileController() FilesController {
 // @param files formData []string true "上傳檔案"
 // @Success 200 boolean successful return boolean
 // @Router /uploads [post]
-func (f FilesController) Uploads(c *gin.Context) {
-	err := service.Uploads(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": -1,
-			"msg":  "Uploads fail : " + err.Error(),
-		})
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"code": 0,
-			"msg":  "Success",
-		})
-	}
-}
+// func (f FilesController) Uploads(c *gin.Context) {
+// 	err := service.Uploads(c)
+// 	if err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{
+// 			"code": -1,
+// 			"msg":  "Uploads fail : " + err.Error(),
+// 		})
+// 	} else {
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"code": 0,
+// 			"msg":  "Success",
+// 		})
+// 	}
+// }
 
 // @Summary 上傳單個檔案
 // @Tags file

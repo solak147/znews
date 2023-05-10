@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Uploads(c *gin.Context) error {
+func Uploads(c *gin.Context, caseId string) error {
 	form, err := c.MultipartForm()
 	if err != nil {
 		return err
@@ -27,7 +27,7 @@ func Uploads(c *gin.Context) error {
 		}
 
 		// 將文件保存到服務器上
-		err = c.SaveUploadedFile(file, path+"/"+file.Filename)
+		err = c.SaveUploadedFile(file, path+"/"+caseId+"/"+file.Filename)
 		if err != nil {
 			return err
 		}

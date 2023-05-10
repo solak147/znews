@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -19,8 +20,15 @@ var (
 	mu sync.Mutex
 )
 
-func CreateCase(form model.CreateCase) error {
-	if err := regexpRigister(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, form.Account); err != nil {
+func CreateCase(c *gin.Context) error {
+	account, _ := c.Get("account")
+
+	var form model.CreateCase
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "表單綁定失敗 : " + err.Error(),
+		})
 		return err
 	}
 
@@ -87,7 +95,7 @@ func CreateCase(form model.CreateCase) error {
 
 	casem := model.Casem{
 		CaseId:        caseId,
-		Account:       form.Account,
+		Account:       fmt.Sprintf("%v", account),
 		Title:         form.Title,
 		Type:          form.Type,
 		Kind:          form.Kind,
@@ -126,6 +134,12 @@ func CreateCase(form model.CreateCase) error {
 			return err
 		}
 	}
+
+	if err := Uploads(c, caseId); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	tx.Commit()
 	return nil
 }
