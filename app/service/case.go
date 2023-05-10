@@ -328,7 +328,6 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	}
 }
 
-// todo trnasaction
 func Quote(account string, m model.QuoteForm) error {
 	//檢查是否有購買vip
 	user := model.User{}
@@ -348,6 +347,8 @@ func Quote(account string, m model.QuoteForm) error {
 		return errors.New("vip已過期")
 	}
 
+	tx := dao.GormSession.Begin()
+
 	quote := model.Quote{
 		CaseId:  m.CaseId,
 		Account: account, //報價者
@@ -356,13 +357,15 @@ func Quote(account string, m model.QuoteForm) error {
 		Day:     m.Day,
 	}
 
-	err := dao.GormSession.Model(&model.Quote{}).Create(&quote).Error
+	err := tx.Model(&model.Quote{}).Create(&quote).Error
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
 	casem := model.Casem{}
-	if err := dao.GormSession.Where("case_id = ?", m.CaseId).Select("account").First(&casem).Error; err != nil {
+	if err := tx.Where("case_id = ?", m.CaseId).Select("account").First(&casem).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
 
@@ -373,10 +376,12 @@ func Quote(account string, m model.QuoteForm) error {
 		IsSystem:    "1",
 	}
 
-	msgErr := dao.GormSession.Model(&model.MsgRecord{}).Create(&msg).Error
+	msgErr := tx.Model(&model.MsgRecord{}).Create(&msg).Error
 	if msgErr != nil {
+		tx.Rollback()
 		return msgErr
 	} else {
+		tx.Commit()
 		return nil
 	}
 }
