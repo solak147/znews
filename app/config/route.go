@@ -35,6 +35,9 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		member.GET("/sohoSettingInit", controller.UserController().SohoSettingInit)
 		member.POST("/profile/save", controller.UserController().UpdateProfile)
 		member.POST("/sohoSetting", controller.UserController().SohoSetting)
+		member.POST("/sohoUrl", controller.UserController().AddSohoUrl)
+		member.GET("/sohoUrl", controller.UserController().GetSohoUrl)
+		member.DELETE("/sohoUrl", controller.UserController().DeleteSohoUrl)
 
 		//member.GET("/:id", middleware.JWTAuthMiddleware(), cache.CacheByRequestURI(m, 2*time.Hour), controller.UserController().GetUser)
 	}
@@ -53,6 +56,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		file.GET("/download/:filename", controller.FileController().Download)
 		file.GET("/sohoDownload/:filename", controller.FileController().SohoDownload)
 		file.GET("/sohowork", controller.FileController().GetSohoWork)
+		file.DELETE("/sohowork/:filename", controller.FileController().DeleteSohoWork)
 	}
 
 	msg := r.Group("/message")

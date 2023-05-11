@@ -29,6 +29,10 @@ func Uploads(c *gin.Context, caseId string) error {
 		// 將文件保存到服務器上
 		err = c.SaveUploadedFile(file, path+"/"+caseId+"/"+file.Filename)
 		if err != nil {
+			err := os.RemoveAll(path + "/" + caseId)
+			if err != nil {
+				return err
+			}
 			return err
 		}
 	}
@@ -106,5 +110,26 @@ func GetSohoWork(account string) ([]model.SohoWork, error) {
 	} else {
 		return work, nil
 	}
+
+}
+
+func DeleteSohoWork(account string, filename string) error {
+
+	work := model.SohoWork{}
+	tx := dao.GormSession.Begin()
+
+	if err := tx.Where("account = ? AND file_name = ?", account, filename).Delete(&work).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	path := os.Getenv("SOHO_WORK_PATH")
+	if err := os.Remove(path + "/" + account + "/" + filename); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
 
 }

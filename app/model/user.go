@@ -81,3 +81,17 @@ type SohoSettingForm struct {
 	ExpVal      string `form:"expVal"  example:"無接案經驗"`
 	Description string `form:"description"  example:"i have ten years experience"`
 }
+
+// 作品網址
+type SohoUrl struct {
+	Account   string    `gorm:"primary_key;size:50;not null;" json:"account"`
+	Url       string    `gorm:"primary_key;size:100;not null;" json:"url"`
+	Explain   string    `gorm:"size:100;not null;" json:"explain"`
+	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
+	UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
+}
+
+type SohoUrlForm struct {
+	Url     string `form:"url"  example:"http://google.com"`
+	Explain string `form:"description"  example:"my blog"`
+}

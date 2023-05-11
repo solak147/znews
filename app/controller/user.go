@@ -264,3 +264,100 @@ func (u UsersController) SohoSettingInit(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 新增作品網址
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param soho body string true "新增作品網址"
+// @Success 200 string json successful return data
+// @Router /member/sohoUrl [post]
+func (u UsersController) AddSohoUrl(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	var form model.SohoUrlForm
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Form bind error" + err.Error(),
+		})
+		return
+	}
+
+	if err := service.AddSohoUrl(fmt.Sprintf("%v", account), form); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}
+
+// @Summary 取得作品網址
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param soho path string true "取得作品網址"
+// @Success 200 string json successful return data
+// @Router /member/sohoUrl [get]
+func (u UsersController) GetSohoUrl(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	if data, err := service.GetSohoUrl(fmt.Sprintf("%v", account)); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": data,
+		})
+	}
+}
+
+// @Summary 刪除作品網址
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param soho path string true "刪除作品網址"
+// @Success 200 string json successful return data
+// @Router /member/sohoUrl/{url} [delete]
+func (u UsersController) DeleteSohoUrl(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	var form model.SohoUrlForm
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "Form bind error" + err.Error(),
+		})
+		return
+	}
+
+	if err := service.DeleteSohoUrl(fmt.Sprintf("%v", account), form.Url); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}

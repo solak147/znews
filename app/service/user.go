@@ -181,7 +181,45 @@ func SohoSettingInit(account string) (interface{}, error) {
 		}
 
 	}
-
 	return set, nil
+}
+
+// 新增作品網址
+func AddSohoUrl(account string, form model.SohoUrlForm) error {
+
+	soho := model.SohoUrl{
+		Account: account,
+		Url:     form.Url,
+		Explain: form.Explain,
+	}
+
+	if err := dao.GormSession.Model(&model.SohoUrl{}).Create(&soho).Error; err != nil {
+		return err
+	} else {
+		return nil
+	}
+
+}
+
+// 取得作品網址
+func GetSohoUrl(account string) ([]model.SohoUrl, error) {
+
+	soho := []model.SohoUrl{}
+	if err := dao.GormSession.Select("*").Where("account=?", account).Find(&soho).Error; err != nil {
+		return nil, err
+	} else {
+		return soho, nil
+	}
+
+}
+
+// 刪除作品網址
+func DeleteSohoUrl(account string, url string) error {
+
+	soho := []model.SohoUrl{}
+	if err := dao.GormSession.Where("account = ? AND url = ?", account, url).Delete(&soho).Error; err != nil {
+		return err
+	}
+	return nil
 
 }
