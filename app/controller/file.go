@@ -67,8 +67,9 @@ func (f FilesController) Upload(c *gin.Context) {
 // @Router /sohowork [get]
 func (f FilesController) GetSohoWork(c *gin.Context) {
 	account, _ := c.Get("account")
+	param := c.Param("param")
 
-	data, err := service.GetSohoWork(fmt.Sprintf("%v", account))
+	data, err := service.GetSohoWork(fmt.Sprintf("%v", account), param)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -108,11 +109,7 @@ func (f FilesController) Download(c *gin.Context) {
 // @Success 200 file successful return file
 // @Router /download/{filename} [get]
 func (f FilesController) SohoDownload(c *gin.Context) {
-	account, _ := c.Get("account")
-
-	filename := c.Param("filename")
-
-	if filepath := service.SohoDownload(filename, fmt.Sprintf("%v", account)); filepath == "" {
+	if filepath := service.SohoDownload(c); filepath == "" {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {
 		c.File(filepath)
@@ -127,10 +124,8 @@ func (f FilesController) SohoDownload(c *gin.Context) {
 // @Success 200 string json successful return data
 // @Router /file/sohowork/{filename} [delete]
 func (f FilesController) DeleteSohoWork(c *gin.Context) {
-	account, _ := c.Get("account")
-	filename := c.Param("filename")
 
-	if err := service.DeleteSohoWork(fmt.Sprintf("%v", account), filename); err != nil {
+	if err := service.DeleteSohoWork(c); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
 			"msg":  "Delete fail : " + err.Error(),

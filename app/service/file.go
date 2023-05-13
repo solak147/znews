@@ -41,6 +41,7 @@ func Uploads(c *gin.Context, caseId string) error {
 
 func Upload(c *gin.Context) error {
 	account, _ := c.Get("account")
+	param := c.Param("param")
 
 	// 解析上傳的檔案
 	file, err := c.FormFile("file")
@@ -54,12 +55,24 @@ func Upload(c *gin.Context) error {
 		FileName: file.Filename,
 	}
 
+	// 頭像
+	if param == "avatar" {
+		work.FileType = "1"
+	} else if param == "work" {
+		work.FileType = "0"
+	}
+
 	if err := tx.Model(&model.SohoWork{}).Create(&work).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	path := os.Getenv("SOHO_WORK_PATH")
+	var path string
+	if param == "avatar" {
+		path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/avatar/" + file.Filename
+	} else {
+		path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/" + file.Filename
+	}
 
 	if file.Size > 2<<20 {
 		tx.Rollback()
@@ -67,7 +80,7 @@ func Upload(c *gin.Context) error {
 	}
 
 	// 將文件保存到服務器上
-	err = c.SaveUploadedFile(file, path+"/"+fmt.Sprintf("%v", account)+"/"+file.Filename)
+	err = c.SaveUploadedFile(file, path)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -89,42 +102,81 @@ func Download(filename string) string {
 	}
 }
 
-func SohoDownload(filename string, account string) string {
+func SohoDownload(c *gin.Context) string {
+	account, _ := c.Get("account")
+	filename := c.Param("filename")
+	param := c.Param("param")
+
 	lowerFilename := strings.ToLower(filename)
 
 	if strings.HasSuffix(lowerFilename, ".doc") || strings.HasSuffix(lowerFilename, ".pdf") || strings.HasSuffix(lowerFilename, ".ppt") || strings.HasSuffix(lowerFilename, ".jpf") ||
 		strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".gif") {
-		path := os.Getenv("SOHO_WORK_PATH")
-		return path + "/" + account + "/" + filename
+
+		var path string
+		if param == "avatar" {
+			path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/avatar/" + filename
+		} else if param == "work" {
+			path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/" + filename
+		}
+
+		return path
 	} else {
 		return ""
 	}
 }
 
-func GetSohoWork(account string) ([]model.SohoWork, error) {
+func GetSohoWork(account string, param string) ([]model.SohoWork, error) {
 	work := []model.SohoWork{}
 
-	err := dao.GormSession.Select("*").Where("account = ?", account).Find(&work).Error
+	// 頭像
+	where := "account = ? "
+	if param == "avatar" {
+		where += "and file_type ='1'"
+	} else if param == "work" {
+		where += "and file_type ='0'"
+	}
+
+	err := dao.GormSession.Select("*").Where(where, account).Find(&work).Error
+
 	if err != nil {
 		return nil, err
 	} else {
 		return work, nil
 	}
-
 }
 
-func DeleteSohoWork(account string, filename string) error {
+func DeleteSohoWork(c *gin.Context) error {
+	account, _ := c.Get("account")
+	filename := c.Param("filename")
+	param := c.Param("param")
 
-	work := model.SohoWork{}
 	tx := dao.GormSession.Begin()
 
-	if err := tx.Where("account = ? AND file_name = ?", account, filename).Delete(&work).Error; err != nil {
+	work := model.SohoWork{
+		Account:  fmt.Sprintf("%v", account),
+		FileName: filename,
+	}
+
+	// 頭像
+	if param == "avatar" {
+		work.FileType = "1"
+	} else if param == "work" {
+		work.FileType = "0"
+	}
+
+	if err := tx.Delete(&work).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	path := os.Getenv("SOHO_WORK_PATH")
-	if err := os.Remove(path + "/" + account + "/" + filename); err != nil {
+	var path string
+	if param == "avatar" {
+		path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/avatar/" + filename
+	} else {
+		path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/" + filename
+	}
+
+	if err := os.Remove(path); err != nil {
 		tx.Rollback()
 		return err
 	}

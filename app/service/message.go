@@ -12,6 +12,7 @@ func GetMsgRecord(account string) ([]model.MsgRec, error) {
 
 	// 执行 SQL 查询语句
 	query := `select account, 
+					(SELECT name FROM users WHERE account = a.account) name, 
 					(SELECT MAX(created_at) FROM msg_records WHERE (account_from = ? and account_to = a.account) or (account_from = a.account and account_to = ? )) crtDte, 
 					(SELECT message FROM msg_records WHERE (account_from = ? and account_to = a.account) or (account_from = a.account and account_to = ? ) ORDER BY created_at DESC LIMIT 1) message,
 					(SELECT is_system FROM msg_records WHERE (account_from = ? and account_to = a.account) or (account_from = a.account and account_to = ? ) ORDER BY created_at DESC LIMIT 1) isSystem, 
@@ -32,7 +33,7 @@ func GetMsgRecord(account string) ([]model.MsgRec, error) {
 
 	for rows.Next() {
 		var msg model.MsgRec
-		if err := rows.Scan(&msg.Account, &msg.CrtDte, &msg.Message, &msg.IsSystem, &msg.NotReadCnt); err != nil {
+		if err := rows.Scan(&msg.Account, &msg.Name, &msg.CrtDte, &msg.Message, &msg.IsSystem, &msg.NotReadCnt); err != nil {
 			return nil, err
 		}
 		msgArr = append(msgArr, msg)

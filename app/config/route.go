@@ -51,12 +51,12 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
 	file := r.Group("/file")
 	{
-		file.POST("/upload", controller.FileController().Upload)
+		file.POST("/upload/:param", controller.FileController().Upload)
 		//file.POST("/uploads", controller.FileController().Uploads)
 		file.GET("/download/:filename", controller.FileController().Download)
-		file.GET("/sohoDownload/:filename", controller.FileController().SohoDownload)
-		file.GET("/sohowork", controller.FileController().GetSohoWork)
-		file.DELETE("/sohowork/:filename", controller.FileController().DeleteSohoWork)
+		file.GET("/sohoDownload/:filename/:param", controller.FileController().SohoDownload)
+		file.GET("/sohowork/:param", controller.FileController().GetSohoWork)
+		file.DELETE("/sohowork/:filename/:param", controller.FileController().DeleteSohoWork)
 	}
 
 	msg := r.Group("/message")

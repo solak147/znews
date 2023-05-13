@@ -15,6 +15,7 @@ type MsgRecord struct {
 
 type MsgRec struct {
 	Account    string `json:"account"`
+	Name       string `json:"name"`
 	Message    string `json:"message"`
 	IsSystem   string `json:"isSystem"`
 	CrtDte     string `json:"crtDte"`

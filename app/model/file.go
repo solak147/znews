@@ -21,6 +21,7 @@ type SerialNo struct {
 type SohoWork struct {
 	Account   string    `gorm:"primary_key;size:50;not null;" json:"account"`
 	FileName  string    `gorm:"primary_key;size:20;not null;" json:"filename"`
+	FileType  string    `gorm:"primary_key;size:1;default:0;COMMENT:'0:作品,1:頭像';" json:"fileType"`
 	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
 }

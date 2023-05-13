@@ -139,6 +139,14 @@ func SohoSetting(account string, form model.SohoSettingForm) error {
 		return err
 	}
 
+	tx := dao.GormSession.Begin()
+
+	sohoD := model.SohoSetting{}
+	if err := tx.Where("account = ?", account).Delete(&sohoD).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	set := model.SohoSetting{
 		Account:     account,
 		Open:        form.Open,
@@ -155,10 +163,11 @@ func SohoSetting(account string, form model.SohoSettingForm) error {
 		Description: form.Description,
 	}
 
-	insertErr := dao.GormSession.Model(&model.SohoSetting{}).Create(&set).Error
-	if insertErr != nil {
-		return insertErr
+	if err := tx.Model(&model.SohoSetting{}).Create(&set).Error; err != nil {
+		tx.Rollback()
+		return err
 	} else {
+		tx.Commit()
 		return nil
 	}
 }
@@ -216,7 +225,7 @@ func GetSohoUrl(account string) ([]model.SohoUrl, error) {
 // 刪除作品網址
 func DeleteSohoUrl(account string, url string) error {
 
-	soho := []model.SohoUrl{}
+	soho := model.SohoUrl{}
 	if err := dao.GormSession.Where("account = ? AND url = ?", account, url).Delete(&soho).Error; err != nil {
 		return err
 	}
