@@ -90,13 +90,13 @@ func Upload(c *gin.Context) error {
 	return nil
 }
 
-func Download(filename string) string {
+func Download(caseId string, filename string) string {
 	lowerFilename := strings.ToLower(filename)
 
 	if strings.HasSuffix(lowerFilename, ".doc") || strings.HasSuffix(lowerFilename, ".pdf") || strings.HasSuffix(lowerFilename, ".ppt") || strings.HasSuffix(lowerFilename, ".jpf") ||
 		strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".gif") {
 		path := os.Getenv("Case_FILE_PATH")
-		return path + "/" + filename
+		return path + "/" + caseId + "/" + filename
 	} else {
 		return ""
 	}

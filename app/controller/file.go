@@ -92,9 +92,10 @@ func (f FilesController) GetSohoWork(c *gin.Context) {
 // @Success 200 file successful return file
 // @Router /download/{filename} [get]
 func (f FilesController) Download(c *gin.Context) {
+	caseId := c.Param("caseId")
 	filename := c.Param("filename")
 
-	if filepath := service.Download(filename); filepath == "" {
+	if filepath := service.Download(caseId, filename); filepath == "" {
 		c.AbortWithStatus(http.StatusNotFound)
 	} else {
 		c.File(filepath)
