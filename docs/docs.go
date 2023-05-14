@@ -150,11 +150,11 @@ const docTemplate = `{
                 "tags": [
                     "file"
                 ],
-                "summary": "下載檔案",
+                "summary": "下載作品檔案",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "下載檔案",
+                        "description": "下載作品檔案",
                         "name": "files",
                         "in": "path",
                         "required": true
@@ -165,6 +165,67 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "type": "file"
+                        }
+                    }
+                }
+            }
+        },
+        "/file/sohowork/{filename}": {
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "刪除作品檔案",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "刪除作品檔案",
+                        "name": "files",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/member/chkSohoSetting": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "是否已填寫接案設定",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "是否已填寫接案設定",
+                        "name": "soho",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -294,6 +355,173 @@ const docTemplate = `{
                 }
             }
         },
+        "/member/sohoSetting": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "SohoSetting",
+                "parameters": [
+                    {
+                        "description": "接案設定",
+                        "name": "soho",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/member/sohoSettingInit": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "SohoSetting",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "接案設定初始值",
+                        "name": "soho",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/member/sohoUrl": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "取得作品網址",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "取得作品網址",
+                        "name": "soho",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "新增作品網址",
+                "parameters": [
+                    {
+                        "description": "新增作品網址",
+                        "name": "soho",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/member/sohoUrl/{url}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "刪除作品網址",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "刪除作品網址",
+                        "name": "soho",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/message/chkNoRead": {
             "get": {
                 "security": [
@@ -315,6 +543,41 @@ const docTemplate = `{
                         "name": "msg",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/deal": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "summary": "Deal",
+                "parameters": [
+                    {
+                        "description": "成交",
+                        "name": "msg",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -458,6 +721,34 @@ const docTemplate = `{
                 }
             }
         },
+        "/sohowork": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "file"
+                ],
+                "summary": "作品資料",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "作品資料",
+                        "name": "file",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
         "/upload": {
             "post": {
                 "produces": [
@@ -466,15 +757,12 @@ const docTemplate = `{
                 "tags": [
                     "file"
                 ],
-                "summary": "上傳檔案",
+                "summary": "上傳單個檔案",
                 "parameters": [
                     {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
-                        "description": "上傳檔案",
-                        "name": "files",
+                        "type": "string",
+                        "description": "上傳單個檔案",
+                        "name": "file",
                         "in": "formData",
                         "required": true
                     }

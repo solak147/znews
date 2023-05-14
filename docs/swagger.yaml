@@ -227,7 +227,7 @@ paths:
   /download/{filename}:
     get:
       parameters:
-      - description: 下載檔案
+      - description: 下載作品檔案
         in: path
         name: files
         required: true
@@ -239,9 +239,47 @@ paths:
           description: OK
           schema:
             type: file
-      summary: 下載檔案
+      summary: 下載作品檔案
       tags:
       - file
+  /file/sohowork/{filename}:
+    delete:
+      parameters:
+      - description: 刪除作品檔案
+        in: path
+        name: files
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 刪除作品檔案
+      tags:
+      - file
+  /member/chkSohoSetting:
+    get:
+      parameters:
+      - description: 是否已填寫接案設定
+        in: path
+        name: soho
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: 是否已填寫接案設定
+      tags:
+      - user
   /member/login:
     post:
       parameters:
@@ -320,6 +358,107 @@ paths:
       summary: 註冊 Step3
       tags:
       - user
+  /member/sohoSetting:
+    post:
+      parameters:
+      - description: 接案設定
+        in: body
+        name: soho
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: SohoSetting
+      tags:
+      - user
+  /member/sohoSettingInit:
+    get:
+      parameters:
+      - description: 接案設定初始值
+        in: path
+        name: soho
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: SohoSetting
+      tags:
+      - user
+  /member/sohoUrl:
+    get:
+      parameters:
+      - description: 取得作品網址
+        in: path
+        name: soho
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: 取得作品網址
+      tags:
+      - user
+    post:
+      parameters:
+      - description: 新增作品網址
+        in: body
+        name: soho
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: 新增作品網址
+      tags:
+      - user
+  /member/sohoUrl/{url}:
+    delete:
+      parameters:
+      - description: 刪除作品網址
+        in: path
+        name: soho
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: 刪除作品網址
+      tags:
+      - user
   /message/{toAccount}:
     get:
       parameters:
@@ -358,6 +497,27 @@ paths:
       security:
       - BearerAuth: []
       summary: chkNoRead
+      tags:
+      - message
+  /message/deal:
+    post:
+      parameters:
+      - description: 成交
+        in: body
+        name: msg
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Deal
       tags:
       - message
   /message/send:
@@ -420,16 +580,14 @@ paths:
       summary: 個人資料儲存
       tags:
       - user
-  /upload:
-    post:
+  /sohowork:
+    get:
       parameters:
-      - description: 上傳檔案
-        in: formData
-        items:
-          type: string
-        name: files
+      - description: 作品資料
+        in: path
+        name: file
         required: true
-        type: array
+        type: string
       produces:
       - application/json
       responses:
@@ -437,7 +595,25 @@ paths:
           description: OK
           schema:
             type: boolean
-      summary: 上傳檔案
+      summary: 作品資料
+      tags:
+      - file
+  /upload:
+    post:
+      parameters:
+      - description: 上傳單個檔案
+        in: formData
+        name: file
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: 上傳單個檔案
       tags:
       - file
 securityDefinitions:

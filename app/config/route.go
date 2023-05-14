@@ -35,6 +35,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		member.GET("/sohoSettingInit", controller.UserController().SohoSettingInit)
 		member.POST("/profile/save", controller.UserController().UpdateProfile)
 		member.POST("/sohoSetting", controller.UserController().SohoSetting)
+		member.GET("/chkSohoSetting", controller.UserController().ChkSohoSetting)
 		member.POST("/sohoUrl", controller.UserController().AddSohoUrl)
 		member.GET("/sohoUrl", controller.UserController().GetSohoUrl)
 		member.DELETE("/sohoUrl", controller.UserController().DeleteSohoUrl)

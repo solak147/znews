@@ -238,6 +238,32 @@ func (u UsersController) SohoSetting(c *gin.Context) {
 	}
 }
 
+// @Summary 是否已填寫接案設定
+// @Tags user
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param soho path string true "是否已填寫接案設定"
+// @Success 200 string json successful return data
+// @Router /member/chkSohoSetting [get]
+func (u UsersController) ChkSohoSetting(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	if err := service.ChkSohoSetting(fmt.Sprintf("%v", account)); err != nil {
+
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Successfully save",
+		})
+	}
+}
+
 // @Summary SohoSetting
 // @Tags user
 // @version 1.0

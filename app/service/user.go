@@ -172,6 +172,18 @@ func SohoSetting(account string, form model.SohoSettingForm) error {
 	}
 }
 
+func ChkSohoSetting(account string) error {
+	var cnt int64
+	if err := dao.GormSession.Model(&model.SohoSetting{}).Where("account = ?", account).Select("count(*)").Count(&cnt).Error; err != nil {
+		return err
+	} else {
+		if cnt == 0 {
+			return errors.New("尚未填寫接案設定")
+		}
+		return nil
+	}
+}
+
 func SohoSettingInit(account string) (interface{}, error) {
 
 	set := model.SohoSetting{}
