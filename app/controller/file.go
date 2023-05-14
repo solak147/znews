@@ -67,9 +67,17 @@ func (f FilesController) Upload(c *gin.Context) {
 // @Router /sohowork [get]
 func (f FilesController) GetSohoWork(c *gin.Context) {
 	account, _ := c.Get("account")
+	accountPath := c.Query("account")
 	param := c.Param("param")
 
-	data, err := service.GetSohoWork(fmt.Sprintf("%v", account), param)
+	var tmp string
+	if accountPath == "" || accountPath == "x" {
+		tmp = fmt.Sprintf("%v", account)
+	} else {
+		tmp = accountPath
+	}
+
+	data, err := service.GetSohoWork(tmp, param)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,

@@ -274,8 +274,17 @@ func (u UsersController) ChkSohoSetting(c *gin.Context) {
 // @Router /member/sohoSettingInit [get]
 func (u UsersController) SohoSettingInit(c *gin.Context) {
 	account, _ := c.Get("account")
+	accountPath := c.Query("account")
 
-	if data, err := service.SohoSettingInit(fmt.Sprintf("%v", account)); err != nil {
+	// x為自己看預覽檔案 其他為報價通知代入帳號查詢
+	var tmp string
+	if accountPath == "" || accountPath == "x" {
+		tmp = fmt.Sprintf("%v", account)
+	} else {
+		tmp = accountPath
+	}
+
+	if data, err := service.SohoSettingInit(tmp); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -336,8 +345,16 @@ func (u UsersController) AddSohoUrl(c *gin.Context) {
 // @Router /member/sohoUrl [get]
 func (u UsersController) GetSohoUrl(c *gin.Context) {
 	account, _ := c.Get("account")
+	accountPath := c.Query("account")
 
-	if data, err := service.GetSohoUrl(fmt.Sprintf("%v", account)); err != nil {
+	var tmp string
+	if accountPath == "" || accountPath == "x" {
+		tmp = fmt.Sprintf("%v", account)
+	} else {
+		tmp = accountPath
+	}
+
+	if data, err := service.GetSohoUrl(tmp); err != nil {
 
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,

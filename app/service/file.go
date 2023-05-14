@@ -94,7 +94,7 @@ func Download(caseId string, filename string) string {
 	lowerFilename := strings.ToLower(filename)
 
 	if strings.HasSuffix(lowerFilename, ".doc") || strings.HasSuffix(lowerFilename, ".pdf") || strings.HasSuffix(lowerFilename, ".ppt") || strings.HasSuffix(lowerFilename, ".jpf") ||
-		strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".gif") {
+		strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".gif") || strings.HasSuffix(lowerFilename, ".jpg") {
 		path := os.Getenv("Case_FILE_PATH")
 		return path + "/" + caseId + "/" + filename
 	} else {
@@ -104,19 +104,27 @@ func Download(caseId string, filename string) string {
 
 func SohoDownload(c *gin.Context) string {
 	account, _ := c.Get("account")
+	accountPath := c.Query("account")
 	filename := c.Param("filename")
 	param := c.Param("param")
+
+	var tmp string
+	if accountPath == "" || accountPath == "x" {
+		tmp = fmt.Sprintf("%v", account)
+	} else {
+		tmp = accountPath
+	}
 
 	lowerFilename := strings.ToLower(filename)
 
 	if strings.HasSuffix(lowerFilename, ".doc") || strings.HasSuffix(lowerFilename, ".pdf") || strings.HasSuffix(lowerFilename, ".ppt") || strings.HasSuffix(lowerFilename, ".jpf") ||
-		strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".gif") {
+		strings.HasSuffix(lowerFilename, ".png") || strings.HasSuffix(lowerFilename, ".txt") || strings.HasSuffix(lowerFilename, ".gif") || strings.HasSuffix(lowerFilename, ".gif") {
 
 		var path string
 		if param == "avatar" {
-			path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/avatar/" + filename
+			path = os.Getenv("SOHO_WORK_PATH") + "/" + tmp + "/avatar/" + filename
 		} else if param == "work" {
-			path = os.Getenv("SOHO_WORK_PATH") + "/" + fmt.Sprintf("%v", account) + "/" + filename
+			path = os.Getenv("SOHO_WORK_PATH") + "/" + tmp + "/" + filename
 		}
 
 		return path
