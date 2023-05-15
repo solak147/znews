@@ -148,3 +148,29 @@ func (ca CasesController) Quote(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 報價紀錄
+// @Tags message
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param quote body string true "報價紀錄"
+// @Success 200 string json successful return data
+// @Router /case/quoteRecord [get]
+func (ca CasesController) QuoteRecord(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	data, err := service.QuoteRecord(fmt.Sprintf("%v", account))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": data,
+		})
+	}
+}

@@ -55,6 +55,19 @@ type CreateCase struct {
 	FilesName   []string `form:"filesName"  example:"[a.jpg]"`
 }
 
+// 未成交的報價紀錄案件
+type QuoteCaseRec struct {
+	CaseId      string    `form:"caseId"  example:"202402001"`
+	Title       string    `form:"title"  example:"電傷平台架設"`
+	ExpectMoney string    `form:"expectMoney"  example:"5000"`
+	WorkArea    string    `form:"workArea"  example:"台北市 信義區"`
+	WorkAreaChk string    `form:"workAreaChk"  example:"1"`
+	WorkContent string    `form:"workContent"  example:"電傷平台架設，伺服器維護..."`
+	PriceS      int       `form:"priceS"  example:"1000"`
+	PriceE      int       `form:"priceE"  example:"2000"`
+	UpdatedAt   time.Time `form:"updatedAt"  example:"2023-04-21 04:16:50"`
+}
+
 // 報價
 type Quote struct {
 	CaseId    string    `gorm:"primary_key;size:10;" json:"caseId"`

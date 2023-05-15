@@ -399,3 +399,33 @@ func Quote(account string, m model.QuoteForm) error {
 		return nil
 	}
 }
+
+func QuoteRecord(account string) ([]model.QuoteCaseRec, error) {
+	caseArr := []model.QuoteCaseRec{}
+
+	// 找未成交報價紀錄
+	query := `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, updated_at ,
+				(SELECT price_s FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_s,
+				(SELECT price_e FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_e
+			  FROM casems a WHERE case_id IN (
+					SELECT case_id FROM quotes
+					WHERE account = ? AND deal = '0')`
+	rows, err := dao.DbSession.Query(query, account, account, account)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c model.QuoteCaseRec
+		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.UpdatedAt, &c.PriceS, &c.PriceE); err != nil {
+			return nil, err
+		}
+		caseArr = append(caseArr, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return caseArr, nil
+}
