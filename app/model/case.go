@@ -26,7 +26,8 @@ type Casem struct {
 	Email       string `gorm:"size:50;not null" json:"email"`
 	Line        string `gorm:"size:20;" json:"line"`
 
-	Status string `gorm:"size:1;default:0;COMMENT:'0:已發案,1:已成交';" json:"status"`
+	QuoteTotal int    `gorm:"size:2;default:0;COMMENT:'報價人數';" json:"quoteTotal"`
+	Status     string `gorm:"size:1;default:0;COMMENT:'0:已發案,1:已成交';" json:"status"`
 
 	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
@@ -74,7 +75,7 @@ type Quote struct {
 	Account   string    `gorm:"primary_key;size:50;not null;" json:"account"`
 	PriceS    int       `gorm:"type:int;not null;" json:"priceS"`
 	PriceE    int       `gorm:"type:int;not null;" json:"priceE"`
-	Day       int       `gorm:"size:3;not null;" json:"day"`
+	Day       int       `gorm:"type:int;not null;" json:"day"`
 	Deal      int       `gorm:"size:1;default:0" json:"deal"`
 	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`

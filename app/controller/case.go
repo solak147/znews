@@ -83,7 +83,7 @@ func (ca CasesController) GetCase(c *gin.Context) {
 // @Success 200 json successful return json
 // @Router /case/getDetail/{caseid} [get]
 func (ca CasesController) GetCaseDetail(c *gin.Context) {
-	caseId := c.Params.ByName("caseid")
+	caseId := c.Params.ByName("caseId")
 
 	var (
 		data  *model.Casem
@@ -171,6 +171,32 @@ func (ca CasesController) QuoteRecord(c *gin.Context) {
 			"code": 0,
 			"msg":  "Success",
 			"data": data,
+		})
+	}
+}
+
+// @Summary 報價前檢查
+// @Tags message
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param quote body string true "報價前檢查"
+// @Success 200 string json successful return data
+// @Router /case/chkBefQuote [get]
+func (ca CasesController) ChkBefQuote(c *gin.Context) {
+	account, _ := c.Get("account")
+	caseId := c.Params.ByName("caseId")
+
+	err := service.ChkBefQuote(fmt.Sprintf("%v", account), caseId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
 		})
 	}
 }

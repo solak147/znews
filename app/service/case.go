@@ -186,6 +186,8 @@ func GetCase(c *gin.Context) ([]interface{}, error, int) {
 
 	orStr := ""
 	if city != "" {
+		// 工作地點不限 or 指定定點
+		// match_phrase 可以指定以片語來搜尋。片語必須要完全符合，也就是不會被拆開成單詞。
 		orStr = fmt.Sprintf(`,"should": [
 									{"term": {"work_area_chk": "1"}},
 									{"match_phrase": {"work_area": "%s"}}
@@ -195,6 +197,7 @@ func GetCase(c *gin.Context) ([]interface{}, error, int) {
 
 	matchSub := ""
 	if search != "" {
+		// 在 title, work_content 欄位中找包含search輸入字串的資料
 		matchSub += fmt.Sprintf(`{"multi_match": {"query": "%s", "fields": ["title", "work_content"]}}`, search)
 	}
 
@@ -212,6 +215,10 @@ func GetCase(c *gin.Context) ([]interface{}, error, int) {
 		matchSub += fmt.Sprintf(`{"match_phrase": {"expect_money": "%s"}}`, price)
 	}
 
+	// bool query 用於將多個條件組合在一起，而他主要由三個部份組成 :
+	// must : 所有條件都必須完全匹配，等於 AND。
+	// should : 至少一個條件要匹配，等於 OR。
+	// must_not : 所有條件都不能匹配，等於 NOT。
 	match := ""
 	if matchSub != "" || orStr != "" {
 		match = fmt.Sprintf(`{
@@ -383,6 +390,14 @@ func Quote(account string, m model.QuoteForm) error {
 		return err
 	}
 
+	// 總報價人數+1，elasticsearch撈資料用
+	uc := model.Casem{
+		QuoteTotal: casem.QuoteTotal + 1,
+	}
+	if err := tx.Model(&model.Casem{}).Where("case_id = ?", m.CaseId).Updates(uc).Error; err != nil {
+		return err
+	}
+
 	msg := model.MsgRecord{
 		AccountFrom: account,
 		AccountTo:   casem.Account,
@@ -428,4 +443,20 @@ func QuoteRecord(account string) ([]model.QuoteCaseRec, error) {
 		return nil, err
 	}
 	return caseArr, nil
+}
+
+func ChkBefQuote(account string, caseId string) error {
+	if err := ChkSohoSetting(account); err != nil {
+		return err
+	}
+
+	var cnt int64
+	if err := dao.GormSession.Model(&model.Casem{}).Where("account = ? and case_id = ?", account, caseId).Count(&cnt).Error; err != nil {
+		return err
+	}
+
+	if cnt > 0 {
+		return errors.New("同一案件不可重複報價")
+	}
+	return nil
 }
