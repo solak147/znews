@@ -119,7 +119,7 @@ func (ca CasesController) GetCaseDetail(c *gin.Context) {
 }
 
 // @Summary 報價
-// @Tags message
+// @Tags case
 // @version 1.0
 // @produce application/json
 // @Security BearerAuth
@@ -150,7 +150,7 @@ func (ca CasesController) Quote(c *gin.Context) {
 }
 
 // @Summary 報價紀錄
-// @Tags message
+// @Tags case
 // @version 1.0
 // @produce application/json
 // @Security BearerAuth
@@ -159,8 +159,9 @@ func (ca CasesController) Quote(c *gin.Context) {
 // @Router /case/quoteRecord [get]
 func (ca CasesController) QuoteRecord(c *gin.Context) {
 	account, _ := c.Get("account")
+	deal := c.Params.ByName("deal")
 
-	data, err := service.QuoteRecord(fmt.Sprintf("%v", account))
+	data, err := service.QuoteRecord(fmt.Sprintf("%v", account), deal)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -176,7 +177,7 @@ func (ca CasesController) QuoteRecord(c *gin.Context) {
 }
 
 // @Summary 報價前檢查
-// @Tags message
+// @Tags case
 // @version 1.0
 // @produce application/json
 // @Security BearerAuth
@@ -197,6 +198,33 @@ func (ca CasesController) ChkBefQuote(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"code": 0,
 			"msg":  "Success",
+		})
+	}
+}
+
+// @Summary 取得案件流程
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param flow path string true "取得案件流程"
+// @Success 200 string json successful return data
+// @Router /case/getflow [get]
+func (ca CasesController) GetFlow(c *gin.Context) {
+	caseId := c.Params.ByName("caseId")
+
+	casem, flow, err := service.GetFlow(caseId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"case": casem,
+			"flow": flow,
 		})
 	}
 }

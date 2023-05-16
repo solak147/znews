@@ -47,7 +47,7 @@ func main() {
 		panic(ormErr)
 	}
 	migrateErr := db.AutoMigrate(&model.User{}, &model.SohoSetting{}, &model.Casem{}, &model.Quote{},
-		&model.CaseFile{}, &model.SohoWork{}, &model.SerialNo{}, &model.MsgRecord{}, &model.SohoUrl{})
+		&model.CaseFile{}, &model.SohoWork{}, &model.SerialNo{}, &model.MsgRecord{}, &model.SohoUrl{}, &model.CaseFlow{})
 	if migrateErr != nil {
 		return
 	}

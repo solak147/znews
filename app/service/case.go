@@ -398,6 +398,16 @@ func Quote(account string, m model.QuoteForm) error {
 		return err
 	}
 
+	// 流程狀態紀錄
+	flow := model.CaseFlow{
+		CaseId: m.CaseId,
+		Status: "1",
+	}
+	if err := tx.Model(&model.CaseFlow{}).Create(&flow).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	msg := model.MsgRecord{
 		AccountFrom: account,
 		AccountTo:   casem.Account,
@@ -415,17 +425,19 @@ func Quote(account string, m model.QuoteForm) error {
 	}
 }
 
-func QuoteRecord(account string) ([]model.QuoteCaseRec, error) {
+func QuoteRecord(account string, deal string) ([]model.QuoteCaseRec, error) {
 	caseArr := []model.QuoteCaseRec{}
 
 	// 找未成交報價紀錄
-	query := `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, updated_at ,
+	query := `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, updated_at ,
 				(SELECT price_s FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_s,
 				(SELECT price_e FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_e
-			  FROM casems a WHERE case_id IN (
+			  FROM casems a 
+			  WHERE case_id IN (
 					SELECT case_id FROM quotes
-					WHERE account = ? AND deal = '0')`
-	rows, err := dao.DbSession.Query(query, account, account, account)
+					WHERE account = ? AND deal = ?)
+			  ORDER BY updated_at desc`
+	rows, err := dao.DbSession.Query(query, account, account, account, deal)
 	if err != nil {
 		return nil, err
 	}
@@ -433,7 +445,7 @@ func QuoteRecord(account string) ([]model.QuoteCaseRec, error) {
 
 	for rows.Next() {
 		var c model.QuoteCaseRec
-		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.UpdatedAt, &c.PriceS, &c.PriceE); err != nil {
+		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.UpdatedAt, &c.PriceS, &c.PriceE); err != nil {
 			return nil, err
 		}
 		caseArr = append(caseArr, c)
@@ -459,4 +471,20 @@ func ChkBefQuote(account string, caseId string) error {
 		return errors.New("同一案件不可重複報價")
 	}
 	return nil
+}
+
+func GetFlow(caseId string) (*model.Casem, []model.CaseFlow, error) {
+	var flow []model.CaseFlow
+
+	if err := dao.GormSession.Select("*").Where("case_id=?", caseId).Find(&flow).Error; err != nil {
+		return nil, nil, err
+	}
+
+	var casem model.Casem
+	if err := dao.GormSession.Select("title, soho_star, boss_star, soho_comment, boss_comment").Where("case_id=?", caseId).Order("created_at asc").Find(&casem).Error; err != nil {
+		return nil, nil, err
+	} else {
+		return &casem, flow, nil
+	}
+
 }
