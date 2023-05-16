@@ -270,7 +270,7 @@ func GetCase(c *gin.Context) ([]interface{}, error, int) {
 
 func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFile, bool, error) {
 
-	fields := []string{"case_id", "account", "title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at"}
+	fields := []string{"case_id", "account", "title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at", "status"}
 	casem := model.Casem{}
 
 	//是否已登入
