@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"net/http"
@@ -350,6 +351,17 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 }
 
 func Quote(account string, m model.QuoteForm) error {
+
+	if err := regexpRigister(`^\d{1,8}$`, strconv.Itoa(m.PriceS)); err != nil {
+		return err
+	}
+	if err := regexpRigister(`^\d{1,8}$`, strconv.Itoa(m.PriceE)); err != nil {
+		return err
+	}
+	if err := regexpRigister(`^\d{1,4}$`, strconv.Itoa(m.Day)); err != nil {
+		return err
+	}
+
 	//檢查是否有購買vip
 	user := model.User{}
 	if err := dao.GormSession.Where("account = ?", account).Select("account, vip_date").First(&user).Error; err != nil {
@@ -425,19 +437,36 @@ func Quote(account string, m model.QuoteForm) error {
 	}
 }
 
-func QuoteRecord(account string, deal string) ([]model.QuoteCaseRec, error) {
+func QuoteRecord(account string, deal string, userType string) ([]model.QuoteCaseRec, error) {
 	caseArr := []model.QuoteCaseRec{}
 
-	// 找未成交報價紀錄
-	query := `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, updated_at ,
-				(SELECT price_s FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_s,
-				(SELECT price_e FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_e
-			  FROM casems a 
-			  WHERE case_id IN (
-					SELECT case_id FROM quotes
-					WHERE account = ? AND deal = ?)
-			  ORDER BY updated_at desc`
-	rows, err := dao.DbSession.Query(query, account, account, account, deal)
+	var (
+		query string
+		rows  *sql.Rows
+		err   error
+	)
+
+	// 找報價紀錄
+	if userType == "boss" {
+		query = `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, updated_at ,
+					(SELECT price_s FROM quotes WHERE case_id =  a.case_id AND deal = '1') price_s,
+					(SELECT price_e FROM quotes WHERE case_id =  a.case_id AND deal = '1') price_e
+				FROM casems a 
+				WHERE account = ? AND status > 0
+				ORDER BY updated_at DESC`
+		rows, err = dao.DbSession.Query(query, account)
+	} else {
+		query = `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, updated_at ,
+					(SELECT price_s FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_s,
+					(SELECT price_e FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_e
+				FROM casems a 
+				WHERE case_id IN (
+						SELECT case_id FROM quotes
+						WHERE account = ? AND deal = ?)
+				ORDER BY updated_at DESC`
+		rows, err = dao.DbSession.Query(query, account, account, account, deal)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -481,10 +510,52 @@ func GetFlow(caseId string) (*model.Casem, []model.CaseFlow, error) {
 	}
 
 	var casem model.Casem
-	if err := dao.GormSession.Select("title, soho_star, boss_star, soho_comment, boss_comment").Where("case_id=?", caseId).Order("created_at asc").Find(&casem).Error; err != nil {
+	if err := dao.GormSession.Select("account, title, soho_star, boss_star, soho_comment, boss_comment").Where("case_id=?", caseId).Order("created_at asc").Find(&casem).Error; err != nil {
 		return nil, nil, err
 	} else {
 		return &casem, flow, nil
 	}
 
+}
+
+func Flow(form model.Flow) error {
+
+	tx := dao.GormSession.Begin()
+	casem := model.Casem{
+		Status: form.Status,
+	}
+
+	if form.BossStar != "" {
+		casem.BossStar = form.BossStar
+	}
+
+	if form.BossComment != "" {
+		casem.BossComment = form.BossComment
+	}
+
+	if form.SohoStar != "" {
+		casem.SohoStar = form.SohoStar
+	}
+
+	if form.SohoComment != "" {
+		casem.SohoComment = form.SohoComment
+	}
+
+	if err := tx.Model(&model.Casem{}).Where("case_id = ?", form.CaseId).Updates(casem).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	//結案
+	flow := model.CaseFlow{
+		CaseId: form.CaseId,
+		Status: form.Status,
+	}
+	if err := tx.Model(&model.CaseFlow{}).Create(&flow).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
 }

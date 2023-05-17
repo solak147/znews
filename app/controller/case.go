@@ -160,8 +160,9 @@ func (ca CasesController) Quote(c *gin.Context) {
 func (ca CasesController) QuoteRecord(c *gin.Context) {
 	account, _ := c.Get("account")
 	deal := c.Params.ByName("deal")
+	userType := c.Query("userType")
 
-	data, err := service.QuoteRecord(fmt.Sprintf("%v", account), deal)
+	data, err := service.QuoteRecord(fmt.Sprintf("%v", account), deal, userType)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -225,6 +226,39 @@ func (ca CasesController) GetFlow(c *gin.Context) {
 			"msg":  "Success",
 			"case": casem,
 			"flow": flow,
+		})
+	}
+}
+
+// @Summary 結案
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param flow body string true "結案"
+// @Success 200 string json successful return data
+// @Router /case/flowClose [post]
+func (ca CasesController) Flow(c *gin.Context) {
+
+	var form model.Flow
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+		return
+	}
+
+	err := service.Flow(form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
 		})
 	}
 }

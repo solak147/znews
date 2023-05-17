@@ -88,15 +88,26 @@ type Quote struct {
 
 type QuoteForm struct {
 	Title   string `form:"title"  example:"app繪圖軟體製作"`
-	CaseId  string `form:"account"  example:"202304005"`
+	CaseId  string `form:"caseId"  example:"202304005"`
 	Account string `form:"account"  example:"kevin@gmail.com"`
 	PriceS  int    `form:"priceS"  example:"1000"`
 	PriceE  int    `form:"priceE"  example:"2000"`
 	Day     int    `form:"day"  example:"10"`
 }
 
+// 案件流程
 type CaseFlow struct {
-	CaseId    string    `gorm:"primary_key;size:10;" json:"caseId"`
-	Status    string    `gorm:"size:1;not null;COMMENT:'1:已成交,2:已結案,3：案主評價,4:接案評價';" json:"status"`
+	CaseId    string    `gorm:"primary_key;size:10;not null;" json:"caseId"`
+	Status    string    `gorm:"primary_key;size:1;not null;COMMENT:'1:已成交,2:已結案,3：案主評價,4:接案評價';" json:"status"`
 	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
+}
+
+type Flow struct {
+	CaseId string `form:"caseId"  example:"202304005"`
+	Status string `form:"status"  example:"2"`
+
+	BossStar    string `form:"bossStar"  example:"5"`
+	BossComment string `form:"bossComment"  example:"very good"`
+	SohoStar    string `form:"sohoStar"  example:"5"`
+	SohoComment string `form:"sohoComment"  example:"very good"`
 }
