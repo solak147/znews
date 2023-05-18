@@ -174,7 +174,7 @@ func SohoSetting(account string, form model.SohoSettingForm) error {
 
 func ChkSohoSetting(account string) error {
 	var cnt int64
-	if err := dao.GormSession.Model(&model.SohoSetting{}).Where("account = ?", account).Select("count(*)").Count(&cnt).Error; err != nil {
+	if err := dao.GormSession.Model(&model.SohoSetting{}).Where("account = ?", account).Count(&cnt).Error; err != nil {
 		return err
 	} else {
 		if cnt == 0 {

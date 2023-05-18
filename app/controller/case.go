@@ -84,36 +84,27 @@ func (ca CasesController) GetCase(c *gin.Context) {
 // @Router /case/getDetail/{caseid} [get]
 func (ca CasesController) GetCaseDetail(c *gin.Context) {
 	caseId := c.Params.ByName("caseId")
+	account, _ := c.Get("account")
 
-	var (
-		data  *model.Casem
-		files []model.CaseFile
-		isVip bool
-		err   error
-	)
+	data := service.GetCaseDetail(caseId, fmt.Sprintf("%v", account))
 
-	if val, exit := c.Get("account"); exit {
-		data, files, isVip, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
-	} else {
-		data, files, isVip, err = service.GetCaseDetail(caseId, fmt.Sprintf("%v", val))
-	}
-
-	if err != nil {
+	if data.Error != nil {
 		middleware.Logger().WithFields(logrus.Fields{
 			"title": "Get case deatil failed:",
-		}).Error(err.Error)
+		}).Error(data.Error.Error())
 
 		c.JSON(http.StatusOK, gin.H{
 			"code": -1,
-			"msg":  "Get case deatil failed :" + err.Error(),
+			"msg":  "Get case deatil failed :" + data.Error.Error(),
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"code":  0,
-			"msg":   "Success",
-			"data":  data,
-			"files": files,
-			"isVip": isVip,
+			"code":         0,
+			"msg":          "Success",
+			"data":         data.Casem,
+			"files":        data.CaseFile,
+			"isVip":        data.IsVip,
+			"isCollection": data.IsCollection,
 		})
 	}
 }
@@ -158,11 +149,8 @@ func (ca CasesController) Quote(c *gin.Context) {
 // @Success 200 string json successful return data
 // @Router /case/quoteRecord [get]
 func (ca CasesController) QuoteRecord(c *gin.Context) {
-	account, _ := c.Get("account")
-	deal := c.Params.ByName("deal")
-	userType := c.Query("userType")
 
-	data, err := service.QuoteRecord(fmt.Sprintf("%v", account), deal, userType)
+	data, err := service.QuoteRecord(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -250,6 +238,40 @@ func (ca CasesController) Flow(c *gin.Context) {
 	}
 
 	err := service.Flow(form)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}
+
+// @Summary 收藏案件
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param case body string true "收藏案件"
+// @Success 200 string json successful return data
+// @Router /case/collect [post]
+func (ca CasesController) UpdateCollect(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	var form model.CaseCollectForm
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+		return
+	}
+
+	err := service.UpdateCollect(fmt.Sprintf("%v", account), form)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,

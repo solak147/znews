@@ -60,6 +60,14 @@ type CreateCase struct {
 	FilesName   []string `form:"filesName"  example:"[a.jpg]"`
 }
 
+type CaseDetailRtn struct {
+	Casem        *Casem
+	CaseFile     []CaseFile
+	IsVip        bool
+	IsCollection bool
+	Error        error
+}
+
 // 未成交的報價紀錄案件
 type QuoteCaseRec struct {
 	CaseId      string    `form:"caseId"  example:"202402001"`
@@ -71,6 +79,7 @@ type QuoteCaseRec struct {
 	PriceS      int       `form:"priceS"  example:"1000"`
 	PriceE      int       `form:"priceE"  example:"2000"`
 	QuoteTotal  string    `form:"quoteTotal"  example:"1"`
+	Status      string    `form:"status"  example:"1"`
 	UpdatedAt   time.Time `form:"updatedAt"  example:"2023-04-21 04:16:50"`
 }
 
@@ -110,4 +119,16 @@ type Flow struct {
 	BossComment string `form:"bossComment"  example:"very good"`
 	SohoStar    string `form:"sohoStar"  example:"5"`
 	SohoComment string `form:"sohoComment"  example:"very good"`
+}
+
+// 收藏案件
+type CaseCollect struct {
+	CaseId    string    `gorm:"primary_key;size:10;" json:"caseId"`
+	Account   string    `gorm:"primary_key;size:50;not null;" json:"account"`
+	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"created_at"`
+}
+
+type CaseCollectForm struct {
+	CaseId string `form:"caseId"  example:"202304005"`
+	IsLike string `form:"isLike"  example:"1"`
 }

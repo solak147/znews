@@ -25,7 +25,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	r.POST("/login", controller.UserController().Login)
 
 	r.GET("/case/get", controller.CaseController().GetCase)
-	r.GET("/case/getDetail/:caseid", controller.CaseController().GetCaseDetail)
+	r.GET("/case/getDetail/:caseId", controller.CaseController().GetCaseDetail)
 
 	r.Use(middleware.JWTAuthMiddleware())
 
@@ -52,6 +52,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		casem.GET("/getDetailAuth/:caseId", controller.CaseController().GetCaseDetail)
 		casem.GET("/getFlow/:caseId", controller.CaseController().GetFlow)
 		casem.POST("/flow", controller.CaseController().Flow)
+		casem.POST("/collect", controller.CaseController().UpdateCollect)
 	}
 
 	file := r.Group("/file")

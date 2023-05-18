@@ -73,7 +73,7 @@ func SendMsg(account string, m model.MsgSend) error {
 
 func ChkNoRead(account string) (int64, error) {
 	var cnt int64
-	if err := dao.GormSession.Model(&model.MsgRecord{}).Where("account_to = ? and is_read = '0'", account).Select("count(*)").Count(&cnt).Error; err != nil {
+	if err := dao.GormSession.Model(&model.MsgRecord{}).Where("account_to = ? and is_read = '0'", account).Count(&cnt).Error; err != nil {
 		return 0, err
 	} else {
 		return cnt, nil

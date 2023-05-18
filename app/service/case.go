@@ -269,7 +269,9 @@ func GetCase(c *gin.Context) ([]interface{}, error, int) {
 	return data, nil, cnt
 }
 
-func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFile, bool, error) {
+func GetCaseDetail(caseId string, account string) model.CaseDetailRtn {
+
+	res := model.CaseDetailRtn{}
 
 	fields := []string{"case_id", "account", "title", "type", "kind", "expect_date", "expect_date_chk", "expect_money", "work_area", "work_area_chk", "work_content", "updated_at", "status"}
 	casem := model.Casem{}
@@ -283,16 +285,16 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 	}
 
 	if err != nil {
-		return nil, nil, false, err
+		res.Error = err
+		return res
 	}
 
-	// vip是否到期
-	var isVip bool
 	if account != "<nil>" {
 
 		user := model.User{}
 		if err := dao.GormSession.Select("vip_date").Where("account=?", account).First(&user).Error; err != nil {
-			return nil, nil, false, err
+			res.Error = err
+			return res
 		}
 
 		// 计算时间戳与当前时间之间的时间差
@@ -337,16 +339,33 @@ func GetCaseDetail(caseId string, account string) (*model.Casem, []model.CaseFil
 			emailArr := strings.Split(casem.Email, "@")
 			casem.Email = "*****@" + emailArr[1]
 		} else {
-			isVip = true
+			// vip是否到期
+			res.IsVip = true
 		}
+
+		var cnt int64
+		if err := dao.GormSession.Model(&model.CaseCollect{}).Where("case_id= ? and account = ?", caseId, account).Count(&cnt).Error; err != nil {
+			res.Error = err
+			return res
+		} else {
+			if cnt > 0 {
+				// 已收藏
+				res.IsCollection = true
+			}
+		}
+
 	}
 
 	var files []model.CaseFile
 	filesErr := dao.GormSession.Select("*").Where("case_id=?", caseId).Find(&files).Error
 	if filesErr != nil {
-		return nil, nil, isVip, err
+		res.Error = err
+		return res
 	} else {
-		return &casem, files, isVip, nil
+		res.Casem = &casem
+		res.CaseFile = files
+
+		return res
 	}
 }
 
@@ -437,33 +456,52 @@ func Quote(account string, m model.QuoteForm) error {
 	}
 }
 
-func QuoteRecord(account string, deal string, userType string) ([]model.QuoteCaseRec, error) {
+// 案主人才 成交＆報價紀錄共用
+func QuoteRecord(c *gin.Context) ([]model.QuoteCaseRec, error) {
+
+	accountAny, _ := c.Get("account")
+	account := fmt.Sprintf("%v", accountAny)
+
+	deal := c.Params.ByName("deal")
+	userType := c.Query("userType")
+	status := c.Query("status")
+	finish := c.Query("finish")
+
 	caseArr := []model.QuoteCaseRec{}
 
 	var (
-		query string
-		rows  *sql.Rows
-		err   error
+		query     string
+		statusSql string
+		finishSql string
+		rows      *sql.Rows
+		err       error
 	)
 
-	// 找報價紀錄
+	if status != "" {
+		statusSql = fmt.Sprintf(`AND status = %s`, status)
+	}
+
+	if finish == "false" {
+		finishSql = `AND status != 4`
+	}
+
 	if userType == "boss" {
-		query = `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, updated_at ,
+		query = fmt.Sprintf(`SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, status, updated_at ,
 					(SELECT price_s FROM quotes WHERE case_id =  a.case_id AND deal = '1') price_s,
 					(SELECT price_e FROM quotes WHERE case_id =  a.case_id AND deal = '1') price_e
 				FROM casems a 
-				WHERE account = ? AND status > 0
-				ORDER BY updated_at DESC`
+				WHERE account = ? AND status > 0 %s %s
+				ORDER BY updated_at DESC`, statusSql, finishSql)
 		rows, err = dao.DbSession.Query(query, account)
 	} else {
-		query = `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, updated_at ,
+		query = fmt.Sprintf(`SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, status, updated_at ,
 					(SELECT price_s FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_s,
 					(SELECT price_e FROM quotes WHERE account = ?  AND case_id =  a.case_id) price_e
 				FROM casems a 
 				WHERE case_id IN (
 						SELECT case_id FROM quotes
-						WHERE account = ? AND deal = ?)
-				ORDER BY updated_at DESC`
+						WHERE account = ? AND deal = ?) %s %s
+				ORDER BY updated_at DESC`, statusSql, finishSql)
 		rows, err = dao.DbSession.Query(query, account, account, account, deal)
 	}
 
@@ -474,7 +512,7 @@ func QuoteRecord(account string, deal string, userType string) ([]model.QuoteCas
 
 	for rows.Next() {
 		var c model.QuoteCaseRec
-		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.UpdatedAt, &c.PriceS, &c.PriceE); err != nil {
+		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.Status, &c.UpdatedAt, &c.PriceS, &c.PriceE); err != nil {
 			return nil, err
 		}
 		caseArr = append(caseArr, c)
@@ -557,5 +595,24 @@ func Flow(form model.Flow) error {
 	}
 
 	tx.Commit()
+	return nil
+}
+
+func UpdateCollect(account string, form model.CaseCollectForm) error {
+	if form.IsLike == "1" {
+		collect := model.CaseCollect{}
+		if err := dao.GormSession.Where("account = ? AND case_id = ?", account, form.CaseId).Delete(collect).Error; err != nil {
+			return err
+		}
+	} else {
+		collect := model.CaseCollect{
+			Account: account,
+			CaseId:  form.CaseId,
+		}
+		if err := dao.GormSession.Model(&model.CaseCollect{}).Create(collect).Error; err != nil {
+			return err
+		}
+
+	}
 	return nil
 }
