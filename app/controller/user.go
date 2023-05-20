@@ -52,17 +52,23 @@ func (u UsersController) CheckUserExit(c *gin.Context) {
 			validCode += strconv.Itoa(num)
 		}
 
-		service.Send(validCode+"是您的驗證碼", "請在網頁上輸入您的驗證碼，此為系統自動發送的信件。", form.Email)
+		if err := service.Send(validCode+" 是您的驗證碼", "請在網頁上輸入您的驗證碼，此為系統自動發送的信件。", form.Email); err != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"code": -1,
+				"msg":  err.Error(),
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"code": 0,
+				"msg":  "Success",
+				"data": validCode,
+			})
+		}
 
-		c.JSON(http.StatusOK, gin.H{
-			"code": 0,
-			"msg":  "Success",
-			"data": validCode,
-		})
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
-			"msg":  "Account has exit",
+			"msg":  "帳號已存在",
 		})
 	}
 

@@ -96,15 +96,16 @@ func Register(form model.RegisterStep3) error {
 
 func CheckUserExist(account string) bool {
 	result := false
-	var user model.User
 
-	dbResult := dao.GormSession.Where("account = ?", account).Find(&user)
-	if dbResult.Error != nil {
+	var cnt int64
+	if err := dao.GormSession.Model(&model.User{}).Where("account = ?", account).Count(&cnt).Error; err != nil {
 		middleware.Logger().WithFields(logrus.Fields{
 			"name": "Get User Info Failed:",
-		}).Error(dbResult.Error)
+		}).Error(err.Error)
 	} else {
-		result = true
+		if cnt != 0 {
+			result = true
+		}
 	}
 	return result
 }
