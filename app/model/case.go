@@ -132,3 +132,16 @@ type CaseCollectForm struct {
 	CaseId string `form:"caseId"  example:"202304005"`
 	IsLike string `form:"isLike"  example:"1"`
 }
+
+// 收藏案件紀錄
+type CaseCollectRec struct {
+	CaseId      string    `form:"caseId"  example:"202402001"`
+	Title       string    `form:"title"  example:"電傷平台架設"`
+	ExpectMoney string    `form:"expectMoney"  example:"5000"`
+	WorkArea    string    `form:"workArea"  example:"台北市 信義區"`
+	WorkAreaChk string    `form:"workAreaChk"  example:"1"`
+	WorkContent string    `form:"workContent"  example:"電傷平台架設，伺服器維護..."`
+	QuoteTotal  string    `form:"quoteTotal"  example:"1"`
+	Status      string    `form:"status"  example:"1"`
+	UpdatedAt   time.Time `form:"updatedAt"  example:"2023-04-21 04:16:50"`
+}

@@ -40,7 +40,7 @@ func (u UsersController) CheckUserExit(c *gin.Context) {
 		return
 	}
 
-	if !service.CheckUserExit(form.Email) {
+	if !service.CheckUserExist(form.Email) {
 
 		// 設定隨機種子
 		rand.Seed(time.Now().UnixNano())

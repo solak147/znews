@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"znews/app/dao"
 	"znews/app/middleware"
 	"znews/app/model"
@@ -24,7 +23,8 @@ func GetUser(account string) (*model.User, error) {
 
 func GetUserByPwd(account string, password string) (*model.User, error) {
 	user := model.User{}
-	err := dao.GormSession.Select(UserFields).Where("account=? and password=?", account, password).First(&user).Error
+
+	err := dao.GormSession.Select(UserFields).Where("account=? and password=?", account, cryptoSha256(password)).First(&user).Error
 	if err != nil {
 		return nil, err
 	} else {
@@ -76,13 +76,13 @@ func Register(form model.RegisterStep3) error {
 		return err
 	}
 
-	if !CheckUserExit(form.Account) {
-		return fmt.Errorf("User exists.")
+	if !CheckUserExist(form.Account) {
+		return errors.New("User exists.")
 	}
 
 	user := model.User{
 		Account:      form.Account,
-		Password:     form.Password,
+		Password:     cryptoSha256(form.Password),
 		Name:         form.Name,
 		Zipcode:      form.Zipcode,
 		Phone:        form.Phone,
@@ -94,7 +94,7 @@ func Register(form model.RegisterStep3) error {
 	return insertErr
 }
 
-func CheckUserExit(account string) bool {
+func CheckUserExist(account string) bool {
 	result := false
 	var user model.User
 

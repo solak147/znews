@@ -616,3 +616,33 @@ func UpdateCollect(account string, form model.CaseCollectForm) error {
 	}
 	return nil
 }
+
+func GetCollect(account string) ([]model.CaseCollectRec, error) {
+
+	var caseArr []model.CaseCollectRec
+
+	query := `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, status, updated_at 
+			FROM casems  
+			WHERE case_id IN (SELECT case_id FROM case_collects WHERE account = ? )
+			ORDER BY updated_at DESC`
+
+	rows, err := dao.DbSession.Query(query, account)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c model.CaseCollectRec
+		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.Status, &c.UpdatedAt); err != nil {
+			return nil, err
+		}
+		caseArr = append(caseArr, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return caseArr, nil
+}

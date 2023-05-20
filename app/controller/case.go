@@ -284,3 +284,29 @@ func (ca CasesController) UpdateCollect(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 取得收藏案件
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param case path string true "取得收藏案件"
+// @Success 200 string json successful return data
+// @Router /case/collect [get]
+func (ca CasesController) GetCollect(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	data, err := service.GetCollect(fmt.Sprintf("%v", account))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": data,
+		})
+	}
+}
