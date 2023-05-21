@@ -76,7 +76,7 @@ func Register(form model.RegisterStep3) error {
 		return err
 	}
 
-	if !CheckUserExist(form.Account) {
+	if CheckUserExist(form.Account) {
 		return errors.New("User exists.")
 	}
 

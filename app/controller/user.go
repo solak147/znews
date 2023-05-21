@@ -11,6 +11,7 @@ import (
 	"znews/app/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type UsersController struct{}
@@ -90,6 +91,10 @@ func (u UsersController) Register(c *gin.Context) {
 
 	err := service.Register(form)
 	if err != nil {
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "Register Failed:",
+		}).Error(err.Error)
+
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
 			"msg":  "Register fail : " + err.Error(),
