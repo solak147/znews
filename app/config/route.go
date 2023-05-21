@@ -1,8 +1,6 @@
 package config
 
 import (
-	"io/ioutil"
-	"net/http"
 	_ "znews/docs"
 
 	"znews/app/controller"
@@ -17,8 +15,12 @@ import (
 
 func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
-	r.Use(middleware.LoggerToFile())
-	r.Use(corsMiddleware())
+	r.Use(middleware.LoggerMiddleware())
+	r.Use(middleware.CorsMiddleware())
+
+	//r.Use(middleware.ErrorMiddleware) 請求進來時會先初始化
+	//r.Use(middleware.ErrorMiddleware()) 專案啟動時就初始化
+	r.Use(middleware.ErrorMiddleware)
 
 	r.GET("/ws", controller.SocketController().Socket)
 
@@ -29,7 +31,12 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	r.GET("/case/get", controller.CaseController().GetCase)
 	r.GET("/case/getDetail/:caseId", controller.CaseController().GetCaseDetail)
 
-	r.GET("/image/:name", serveImage)
+	// test
+	// r.GET("/panic", func(c *gin.Context) {
+	// 	panic("Something went wrong!")
+	// })
+
+	//r.GET("/image/:name", serveImage)
 
 	r.Use(middleware.JWTAuthMiddleware())
 
@@ -86,45 +93,16 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
 }
 
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Max-Age", "86400") // 1天
+// 直接存取圖片
+// func serveImage(c *gin.Context) {
+// 	name := c.Params.ByName("name")
+// 	imagePath := "app/service/images/" + name // 指定圖片檔案的路徑
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
-		}
+// 	image, err := ioutil.ReadFile(imagePath)
+// 	if err != nil {
+// 		c.String(http.StatusInternalServerError, "Internal Server Error")
+// 		return
+// 	}
 
-		c.Next()
-	}
-}
-
-func serveImage(c *gin.Context) {
-	name := c.Params.ByName("name")
-	imagePath := "app/service/images/" + name // 指定圖片檔案的路徑
-
-	image, err := ioutil.ReadFile(imagePath)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "Internal Server Error")
-		return
-	}
-
-	c.Data(http.StatusOK, "image/jpeg", image)
-}
-
-// router.GET("/user/:name", func(c *gin.Context) {
-// 	fmt.Println(c.FullPath())  // /user/:name/
-// 	name := c.Param("name")
-// 	c.String(http.StatusOK, "Hello %s", name)
-// })
-
-// server.GET("/hc", func(c *gin.Context) {
-// 	c.JSON(200, gin.H{
-// 		"message": "health check",
-// 	})
-// })
+// 	c.Data(http.StatusOK, "image/jpeg", image)
+// }
