@@ -310,3 +310,29 @@ func (ca CasesController) GetCollect(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 取得發佈案件
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param case path string true "取得發佈案件"
+// @Success 200 string json successful return data
+// @Router /case/release [get]
+func (ca CasesController) GetCaseRelease(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	data, err := service.GetCaseRelease(fmt.Sprintf("%v", account))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": data,
+		})
+	}
+}

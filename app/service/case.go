@@ -646,3 +646,33 @@ func GetCollect(account string) ([]model.CaseCollectRec, error) {
 	}
 	return caseArr, nil
 }
+
+func GetCaseRelease(account string) ([]model.CaseReleaseRec, error) {
+
+	var caseArr []model.CaseReleaseRec
+
+	query := `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, status, updated_at 
+			FROM casems  
+			WHERE status = '0' AND account = ?
+			ORDER BY updated_at DESC`
+
+	rows, err := dao.DbSession.Query(query, account)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c model.CaseReleaseRec
+		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.Status, &c.UpdatedAt); err != nil {
+			return nil, err
+		}
+		caseArr = append(caseArr, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return caseArr, nil
+}
