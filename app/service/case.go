@@ -24,7 +24,7 @@ var (
 func CreateCase(c *gin.Context) error {
 	account, _ := c.Get("account")
 
-	var form model.CreateCase
+	var form model.CaseForm
 	if err := c.ShouldBind(&form); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
@@ -33,56 +33,7 @@ func CreateCase(c *gin.Context) error {
 		return err
 	}
 
-	if err := regexpRigister(`^.{3,20}$`, form.Title); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^.{4}$`, form.Type); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^[o,i]$`, form.Kind); err != nil {
-		return err
-	}
-
-	// 0-30 or yyyy/mm/dd
-	if err := regexpRigister(`^([0-9]{4}/(0[1-9]|1[012])/(0[1-9]|[12][0-9]|3[01])|([12][0-9]|30|[0-9])|)$`, form.ExpectDate); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^[1,2,3]$`, form.ExpectDateChk); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^[\s\S]{1,200}$`, form.WorkContent); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^\S.{0,13}\S?$`, form.Name); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^\d{1,15}$`, form.Phone); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^\d{0,4}$`, form.CityTalk); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^\d{0,10}$`, form.CityTalk2); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^\d{0,5}$`, form.Extension); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`, form.Email); err != nil {
-		return err
-	}
-
-	if err := regexpRigister(`^[a-zA-Z0-9_-]*$`, form.Line); err != nil {
+	if err := chkCaseForm(form); err != nil {
 		return err
 	}
 
@@ -269,6 +220,104 @@ func GetCase(c *gin.Context) ([]interface{}, error, int) {
 	return data, nil, cnt
 }
 
+func UpdateCase(c *gin.Context) error {
+
+	caseId := c.Params.ByName("caseId")
+
+	var form model.CaseForm
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  "表單綁定失敗 : " + err.Error(),
+		})
+		return err
+	}
+
+	if err := chkCaseForm(form); err != nil {
+		return err
+	}
+
+	tx := dao.GormSession.Begin()
+
+	casem := model.Casem{
+		Title:         form.Title,
+		Type:          form.Type,
+		Kind:          form.Kind,
+		ExpectDate:    form.ExpectDate,
+		ExpectDateChk: form.ExpectDateChk,
+		ExpectMoney:   form.ExpectMoney,
+		WorkArea:      form.WorkArea,
+		WorkAreaChk:   form.WorkAreaChk,
+		WorkContent:   form.WorkContent,
+
+		Name:        form.Name,
+		Phone:       form.Phone,
+		CityTalk:    form.CityTalk,
+		CityTalk2:   form.CityTalk2,
+		Extension:   form.Extension,
+		ContactTime: form.ContactTime,
+		Email:       form.Email,
+		Line:        form.Line,
+	}
+
+	if err := tx.Model(&model.Casem{}).Where("case_id = ?", caseId).Updates(casem).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	file := model.CaseFile{}
+	if err := tx.Where("case_id = ?", caseId).Delete(file).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, name := range form.FilesName {
+		file := model.CaseFile{
+			CaseId:   caseId,
+			FileName: name,
+		}
+
+		err := tx.Model(&model.CaseFile{}).Create(&file).Error
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if err := Uploads(c, caseId); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func GetCaseDetailOri(caseId string, account string) model.CaseDetailRtn {
+	res := model.CaseDetailRtn{}
+	casem := model.Casem{}
+
+	if err := dao.GormSession.Select("*").Where("case_id=?", caseId).First(&casem).Error; err != nil {
+		res.Error = err
+		return res
+	}
+
+	if account != casem.Account {
+		res.Error = errors.New("非你所擁有的案件")
+	}
+
+	var files []model.CaseFile
+	if err := dao.GormSession.Select("*").Where("case_id=?", caseId).Find(&files).Error; err != nil {
+		res.Error = err
+		return res
+	} else {
+		res.Casem = &casem
+		res.CaseFile = files
+
+		return res
+	}
+}
+
 func GetCaseDetail(caseId string, account string) model.CaseDetailRtn {
 
 	res := model.CaseDetailRtn{}
@@ -359,7 +408,7 @@ func GetCaseDetail(caseId string, account string) model.CaseDetailRtn {
 	var files []model.CaseFile
 	filesErr := dao.GormSession.Select("*").Where("case_id=?", caseId).Find(&files).Error
 	if filesErr != nil {
-		res.Error = err
+		res.Error = filesErr
 		return res
 	} else {
 		res.Casem = &casem
@@ -522,22 +571,6 @@ func QuoteRecord(c *gin.Context) ([]model.QuoteCaseRec, error) {
 		return nil, err
 	}
 	return caseArr, nil
-}
-
-func ChkBefQuote(account string, caseId string) error {
-	if err := ChkSohoSetting(account); err != nil {
-		return err
-	}
-
-	var cnt int64
-	if err := dao.GormSession.Model(&model.Casem{}).Where("account = ? and case_id = ?", account, caseId).Count(&cnt).Error; err != nil {
-		return err
-	}
-
-	if cnt > 0 {
-		return errors.New("同一案件不可重複報價")
-	}
-	return nil
 }
 
 func GetFlow(caseId string) (*model.Casem, []model.CaseFlow, error) {

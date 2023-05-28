@@ -37,7 +37,11 @@ type Casem struct {
 	UpdatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
-type CreateCase struct {
+type CaseByIdForm struct {
+	CaseId string `form:"caseId"  example:"202402001"`
+}
+
+type CaseForm struct {
 	Account       string `form:"account"  example:"kevin@gmail.com"`
 	Title         string `form:"title"  example:"電傷平台架設"`
 	Type          string `form:"type"  example:"程式開發"`

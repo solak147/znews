@@ -29,9 +29,8 @@ func Uploads(c *gin.Context, caseId string) error {
 		// 將文件保存到服務器上
 		err = c.SaveUploadedFile(file, path+"/"+caseId+"/"+file.Filename)
 		if err != nil {
-			err := os.RemoveAll(path + "/" + caseId)
-			if err != nil {
-				return err
+			if rmErr := os.RemoveAll(path + "/" + caseId); rmErr != nil {
+				return rmErr
 			}
 			return err
 		}

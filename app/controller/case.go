@@ -75,6 +75,66 @@ func (ca CasesController) GetCase(c *gin.Context) {
 
 }
 
+// @Summary 案件編輯 取casem & file
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @param case path string true "案件編輯 取casem & file"
+// @Success 200 json successful return json
+// @Router /case/getDetailOri/{caseid} [get]
+func (ca CasesController) GetCaseDetailOri(c *gin.Context) {
+	caseId := c.Params.ByName("caseId")
+	account, _ := c.Get("account")
+
+	data := service.GetCaseDetailOri(caseId, fmt.Sprintf("%v", account))
+
+	if data.Error != nil {
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "GetCaseDetailOri failed:" + caseId,
+		}).Error(data.Error.Error())
+
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "GetCaseDetailOri failed :" + data.Error.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code":  0,
+			"msg":   "Success",
+			"data":  data.Casem,
+			"files": data.CaseFile,
+		})
+	}
+}
+
+// @Summary 案件編輯
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @param case body string true "案件編輯"
+// @Success 200 json successful return json
+// @Router /case/update/{caseid} [post]
+func (ca CasesController) UpdateCase(c *gin.Context) {
+
+	err := service.UpdateCase(c)
+
+	if err != nil {
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "UpdateCase failed:",
+		}).Error(err.Error())
+
+		c.JSON(http.StatusOK, gin.H{
+			"code": -1,
+			"msg":  "UpdateCase failed :" + err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}
+
 // @Summary 案件詳細資料
 // @Tags case
 // @version 1.0
@@ -161,32 +221,6 @@ func (ca CasesController) QuoteRecord(c *gin.Context) {
 			"code": 0,
 			"msg":  "Success",
 			"data": data,
-		})
-	}
-}
-
-// @Summary 報價前檢查
-// @Tags case
-// @version 1.0
-// @produce application/json
-// @Security BearerAuth
-// @param quote body string true "報價前檢查"
-// @Success 200 string json successful return data
-// @Router /case/chkBefQuote [get]
-func (ca CasesController) ChkBefQuote(c *gin.Context) {
-	account, _ := c.Get("account")
-	caseId := c.Params.ByName("caseId")
-
-	err := service.ChkBefQuote(fmt.Sprintf("%v", account), caseId)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code": -1,
-			"msg":  err.Error(),
-		})
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"code": 0,
-			"msg":  "Success",
 		})
 	}
 }
