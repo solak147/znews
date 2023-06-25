@@ -370,3 +370,28 @@ func (ca CasesController) GetCaseRelease(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 下架案件
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param case path string true "下架案件"
+// @Success 200 string json successful return data
+// @Router /close/caseId [post]
+func (ca CasesController) CloseCase(c *gin.Context) {
+	caseId := c.Params.ByName("caseId")
+
+	err := service.CloseCase(fmt.Sprintf("%v", caseId))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}

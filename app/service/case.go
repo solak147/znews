@@ -147,8 +147,9 @@ func GetCase(c *gin.Context) ([]interface{}, error, int) {
 
 	}
 
-	matchSub := ""
+	matchSub := `{"term": {"status": "0"}}`
 	if search != "" {
+		matchSub += ","
 		// 在 title, work_content 欄位中找包含search輸入字串的資料
 		matchSub += fmt.Sprintf(`{"multi_match": {"query": "%s", "fields": ["title", "work_content"]}}`, search)
 	}
@@ -708,4 +709,17 @@ func GetCaseRelease(account string) ([]model.CaseReleaseRec, error) {
 		return nil, err
 	}
 	return caseArr, nil
+}
+
+// 下架案件
+func CloseCase(caseId string) error {
+
+	casem := model.Casem{
+		Status: "-1",
+	}
+	if err := dao.GormSession.Model(&model.Casem{}).Where("case_id=?", caseId).Updates(casem).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
