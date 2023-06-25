@@ -259,6 +259,7 @@ func UpdateCase(c *gin.Context) error {
 		ContactTime: form.ContactTime,
 		Email:       form.Email,
 		Line:        form.Line,
+		UpdatedAt:   time.Now(),
 	}
 
 	if err := tx.Model(&model.Casem{}).Where("case_id = ?", caseId).Updates(casem).Error; err != nil {
@@ -715,7 +716,53 @@ func GetCaseRelease(account string) ([]model.CaseReleaseRec, error) {
 func CloseCase(caseId string) error {
 
 	casem := model.Casem{
-		Status: "-1",
+		Status:    "-1",
+		UpdatedAt: time.Now(),
+	}
+	if err := dao.GormSession.Model(&model.Casem{}).Where("case_id=?", caseId).Updates(casem).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// 取得下架案件
+func GetCloseCase(account string) ([]model.CaseCloseRec, error) {
+
+	var caseArr []model.CaseCloseRec
+
+	query := `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, status, updated_at 
+			FROM casems  
+			WHERE status = '-1' AND account = ?
+			ORDER BY updated_at DESC`
+
+	rows, err := dao.DbSession.Query(query, account)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c model.CaseCloseRec
+		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.Status, &c.UpdatedAt); err != nil {
+			return nil, err
+		}
+		caseArr = append(caseArr, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return caseArr, nil
+}
+
+// 重新上架
+func RePublish(caseId string) error {
+
+	casem := model.Casem{
+		Status:    "0",
+		UpdatedAt: time.Now(),
 	}
 	if err := dao.GormSession.Model(&model.Casem{}).Where("case_id=?", caseId).Updates(casem).Error; err != nil {
 		return err

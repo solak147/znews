@@ -68,6 +68,8 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		casem.GET("/collect", controller.CaseController().GetCollect)
 		casem.GET("/release", controller.CaseController().GetCaseRelease)
 		casem.POST("/close/:caseId", controller.CaseController().CloseCase)
+		casem.POST("/rePublish/:caseId", controller.CaseController().RePublish)
+		casem.GET("/getClose", controller.CaseController().GetCloseCase)
 	}
 
 	file := r.Group("/file")

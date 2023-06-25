@@ -382,7 +382,58 @@ func (ca CasesController) GetCaseRelease(c *gin.Context) {
 func (ca CasesController) CloseCase(c *gin.Context) {
 	caseId := c.Params.ByName("caseId")
 
-	err := service.CloseCase(fmt.Sprintf("%v", caseId))
+	err := service.CloseCase(caseId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}
+
+// @Summary 取得下架案件
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param case path string true "取得下架案件"
+// @Success 200 string json successful return data
+// @Router /getClose [get]
+func (ca CasesController) GetCloseCase(c *gin.Context) {
+	account, _ := c.Get("account")
+
+	data, err := service.GetCloseCase(fmt.Sprintf("%v", account))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": data,
+		})
+	}
+}
+
+// @Summary 重新上架
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param case path string true "重新上架"
+// @Success 200 string json successful return data
+// @Router /rePublish/caseId [post]
+func (ca CasesController) RePublish(c *gin.Context) {
+	caseId := c.Params.ByName("caseId")
+
+	err := service.RePublish(caseId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
