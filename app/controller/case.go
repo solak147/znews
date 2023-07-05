@@ -446,3 +446,28 @@ func (ca CasesController) RePublish(c *gin.Context) {
 		})
 	}
 }
+
+// @Summary 刪除下架案件
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param case path string true "刪除下架案件"
+// @Success 200 string json successful return data
+// @Router /deleteCloseCase/caseId [delete]
+func (ca CasesController) DeleteCloseCase(c *gin.Context) {
+	caseId := c.Params.ByName("caseId")
+
+	err := service.DeleteCloseCase(caseId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+		})
+	}
+}

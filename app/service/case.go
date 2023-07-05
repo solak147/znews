@@ -770,3 +770,28 @@ func RePublish(caseId string) error {
 
 	return nil
 }
+
+// 刪除已下架案件
+func DeleteCloseCase(caseId string) error {
+
+	tx := dao.GormSession.Begin()
+
+	if err := tx.Where("case_id = ?", caseId).Delete(model.Casem{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where("case_id = ?", caseId).Delete(model.CaseFile{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	path := os.Getenv("Case_FILE_PATH")
+	if err := os.RemoveAll(path + "/" + caseId); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
