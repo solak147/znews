@@ -27,7 +27,7 @@ type Casem struct {
 	Line        string `gorm:"size:20;" json:"line"`
 
 	QuoteTotal  int    `gorm:"size:2;default:0;COMMENT:'報價人數';" json:"quoteTotal"`
-	Status      string `gorm:"size:2;default:0;COMMENT:'-1:下架,0:已發案,1:已成交';" json:"status"`
+	Status      string `gorm:"size:2;default:0;COMMENT:'-1:下架,0:已發案,1:已成交,2:已完成,3:案主評價,4:接案評價';" json:"status"`
 	BossStar    string `gorm:"size:1;" json:"bossStar"`
 	BossComment string `gorm:"size:30;" json:"bossComment"`
 	SohoStar    string `gorm:"size:1;" json:"sohoStar"`
