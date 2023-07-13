@@ -59,6 +59,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 		casem.POST("/create", controller.CaseController().CreateCase)
 		casem.POST("/quote", controller.CaseController().Quote)
 		casem.GET("/quoteRecord/:deal", controller.CaseController().QuoteRecord)
+		casem.GET("/quoteBossRecord", controller.CaseController().QuoteBossRecord)
 		casem.GET("/getDetailAuth/:caseId", controller.CaseController().GetCaseDetail) // 找案件主檔及檔案
 		casem.GET("/getDetailAuthOri/:caseId", controller.CaseController().GetCaseDetailOri)
 		casem.POST("/update/:caseId", controller.CaseController().UpdateCase)

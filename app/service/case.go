@@ -507,7 +507,7 @@ func Quote(account string, m model.QuoteForm) error {
 	}
 }
 
-// 案主人才 成交＆報價紀錄共用
+// 案主成交 & 人才成交 ＆ 人才報價紀錄 共用
 func QuoteRecord(c *gin.Context) ([]model.QuoteCaseRec, error) {
 
 	accountAny, _ := c.Get("account")
@@ -564,6 +564,43 @@ func QuoteRecord(c *gin.Context) ([]model.QuoteCaseRec, error) {
 	for rows.Next() {
 		var c model.QuoteCaseRec
 		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.Status, &c.UpdatedAt, &c.PriceS, &c.PriceE); err != nil {
+			return nil, err
+		}
+		caseArr = append(caseArr, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return caseArr, nil
+}
+
+// 案主 報價紀錄
+func QuoteBossRecord(account string) ([]model.QuoteCaseRec, error) {
+
+	caseArr := []model.QuoteCaseRec{}
+
+	var (
+		query string
+		rows  *sql.Rows
+		err   error
+	)
+
+	query = `SELECT case_id, title, expect_money, work_area, work_area_chk, work_content, quote_total, status, updated_at
+			FROM casems a
+			WHERE account = ? AND status = 0
+			AND EXISTS (SELECT 1 FROM quotes WHERE case_id = a.case_id)
+			ORDER BY updated_at DESC`
+	rows, err = dao.DbSession.Query(query, account)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c model.QuoteCaseRec
+		if err := rows.Scan(&c.CaseId, &c.Title, &c.ExpectMoney, &c.WorkArea, &c.WorkAreaChk, &c.WorkContent, &c.QuoteTotal, &c.Status, &c.UpdatedAt); err != nil {
 			return nil, err
 		}
 		caseArr = append(caseArr, c)
