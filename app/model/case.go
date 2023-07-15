@@ -87,6 +87,17 @@ type QuoteCaseRec struct {
 	UpdatedAt   time.Time `form:"updatedAt"  example:"2023-04-21 04:16:50"`
 }
 
+// 報價人列表
+type QuotePerRtn struct {
+	Name      string
+	Email     string
+	Phone     string
+	PriceS    int
+	PriceE    int
+	Day       int
+	UpdatedAt time.Time
+}
+
 // 報價
 type Quote struct {
 	CaseId    string    `gorm:"primary_key;size:10;" json:"caseId"`

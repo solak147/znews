@@ -252,6 +252,32 @@ func (ca CasesController) QuoteBossRecord(c *gin.Context) {
 	}
 }
 
+// @Summary 報價紀錄 - 報價人列表
+// @Tags case
+// @version 1.0
+// @produce application/json
+// @Security BearerAuth
+// @param quote body string true "報價紀錄"
+// @Success 200 string json successful return data
+// @Router /case/quotePerLst [get]
+func (ca CasesController) QuotePerLst(c *gin.Context) {
+	caseId := c.Params.ByName("caseId")
+
+	data, err := service.QuotePerLst(caseId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code": -1,
+			"msg":  err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"code": 0,
+			"msg":  "Success",
+			"data": data,
+		})
+	}
+}
+
 // @Summary 取得案件流程
 // @Tags case
 // @version 1.0

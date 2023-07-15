@@ -575,6 +575,44 @@ func QuoteRecord(c *gin.Context) ([]model.QuoteCaseRec, error) {
 	return caseArr, nil
 }
 
+// 報價人列表
+func QuotePerLst(caseId string) ([]model.QuotePerRtn, error) {
+
+	caseArr := []model.QuotePerRtn{}
+
+	var (
+		query string
+		rows  *sql.Rows
+		err   error
+	)
+
+	query = `SELECT (SELECT name from users WHERE account = a.account) name,
+			(SELECT email from users WHERE account = a.account) email,
+			(SELECT phone from users WHERE account = a.account) phone,
+			price_s, price_e, day, updated_at
+			FROM quotes a  
+			WHERE case_id = ?`
+	rows, err = dao.DbSession.Query(query, caseId)
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var c model.QuotePerRtn
+		if err := rows.Scan(&c.Name, &c.Email, &c.Phone, &c.PriceS, &c.PriceE, &c.Day, &c.UpdatedAt); err != nil {
+			return nil, err
+		}
+		caseArr = append(caseArr, c)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return caseArr, nil
+}
+
 // 案主 報價紀錄
 func QuoteBossRecord(account string) ([]model.QuoteCaseRec, error) {
 
