@@ -589,7 +589,7 @@ func QuotePerLst(caseId string) ([]model.QuotePerRtn, error) {
 	query = `SELECT (SELECT name from users WHERE account = a.account) name,
 			(SELECT email from users WHERE account = a.account) email,
 			(SELECT phone from users WHERE account = a.account) phone,
-			price_s, price_e, day, updated_at
+			account, price_s, price_e, day, updated_at
 			FROM quotes a  
 			WHERE case_id = ?`
 	rows, err = dao.DbSession.Query(query, caseId)
@@ -601,7 +601,7 @@ func QuotePerLst(caseId string) ([]model.QuotePerRtn, error) {
 
 	for rows.Next() {
 		var c model.QuotePerRtn
-		if err := rows.Scan(&c.Name, &c.Email, &c.Phone, &c.PriceS, &c.PriceE, &c.Day, &c.UpdatedAt); err != nil {
+		if err := rows.Scan(&c.Name, &c.Email, &c.Phone, &c.Account, &c.PriceS, &c.PriceE, &c.Day, &c.UpdatedAt); err != nil {
 			return nil, err
 		}
 		caseArr = append(caseArr, c)

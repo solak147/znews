@@ -89,6 +89,7 @@ type QuoteCaseRec struct {
 
 // 報價人列表
 type QuotePerRtn struct {
+	Account   string
 	Name      string
 	Email     string
 	Phone     string
