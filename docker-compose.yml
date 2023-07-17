@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   db:
-    image: mysql
+    image: mysql #8.0.32-1.el8
     ports:
       - "3307:3306"
     environment:
@@ -15,7 +15,7 @@ services:
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:latest #7.0.9
     ports:
     - "6379:6379"
     networks:
@@ -70,6 +70,15 @@ services:
       - 9600:9600
     networks:
       - backend-bridge
+
+  nginx:
+    image: nginx
+    ports:
+      - "81:81"
+    networks:
+      - backend-bridge  
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d      
 
 networks:
   backend-bridge:
