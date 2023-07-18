@@ -78,7 +78,8 @@ services:
     networks:
       - backend-bridge  
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d      
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl         
 
 networks:
   backend-bridge:
