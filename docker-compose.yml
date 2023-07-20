@@ -75,6 +75,7 @@ services:
     image: nginx
     ports:
       - "81:81"
+      - "443:443"
     networks:
       - backend-bridge  
     volumes:

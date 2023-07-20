@@ -73,8 +73,7 @@ func main() {
 	}
 
 	// 启动HTTPS服务器
-	// err := router.RunTLS(":443", "server.crt", "server.key")
-	// if err != nil {
-	//     panic(err)
-	// }
+	if err := server.RunTLS(":443", "server.crt", "server.key"); err != nil {
+		panic(err)
+	}
 }
