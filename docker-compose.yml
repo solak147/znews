@@ -76,7 +76,6 @@ services:
     ports:
       - "81:81"
       - "443:443"
-      - "3000:3000"
     networks:
       - backend-bridge  
     volumes:
