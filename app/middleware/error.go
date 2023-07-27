@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -10,8 +11,11 @@ import (
 func ErrorMiddleware(c *gin.Context) {
 	defer func() {
 		if err := recover(); err != nil {
+			_, file, line, _ := runtime.Caller(2) // 獲取呼叫者的信息（1代表ErrorMiddleware本身，2代表ErrorMiddleware的呼叫者）
 			Logger().WithFields(logrus.Fields{
 				"title": "非預期錯誤:",
+				"file":  file,
+				"line":  line,
 			}).Error(err)
 
 			c.JSON(http.StatusBadRequest, gin.H{
