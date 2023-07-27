@@ -383,7 +383,7 @@ func GetCaseDetail(caseId string, account string) model.CaseDetailRtn {
 
 			if len(casem.Line) > 3 {
 				casem.Line = casem.Line[:1] + "****" + casem.Line[4:]
-			} else {
+			} else if len(casem.Line) > 0 {
 				casem.Line = casem.Line[:1] + "***"
 			}
 
