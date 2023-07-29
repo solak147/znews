@@ -35,6 +35,13 @@ func Uploads(c *gin.Context, caseId string) error {
 			return err
 		}
 	}
+
+	// 设置目录权限为 0777 (rwxrwxrwx)
+	folderPath := path + "/" + caseId
+	if err = os.Chmod(folderPath, 0777); err != nil {
+		return err
+	}
+
 	return nil
 }
 
