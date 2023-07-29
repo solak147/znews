@@ -37,7 +37,11 @@ func Send(title string, body string, to string) error {
 	}
 
 	htmlStr := strings.Replace(string(htmlContent), "xxxxxx", title, 1)
-	htmlStr = strings.Replace(htmlStr, "domain", domain, -1)
+
+	imagePaths := []string{"body_bg.jpg", "dot_image.jpg", "header_bg.jpg", "image_1.jpg", "image_2.jpg", "image_3.jpg", "image_4.png", "image_5.png"} // 圖片路徑列表
+	for index, imagePath := range imagePaths {
+		htmlStr = strings.Replace(htmlStr, fmt.Sprintf("serimg%d", index), domain+"/"+imagePath, 1)
+	}
 
 	msg := "From: " + from + "\n" +
 		"To: " + to + "\n" +
@@ -48,25 +52,25 @@ func Send(title string, body string, to string) error {
 		"Content-Type: text/html; charset=\"UTF-8\"\n" + htmlStr
 
 	// 添加圖片內容
-	imagePaths := []string{"body_bg.jpg", "dot_image.jpg", "header_bg.jpg", "image_1.jpg", "image_2.jpg", "image_3.jpg", "image_4.png", "image_5.png"} // 圖片路徑列表
-	for index, imagePath := range imagePaths {
-		imageData, err := ioutil.ReadFile("app/service/images/" + imagePath)
-		if err != nil {
-			middleware.Logger().WithFields(logrus.Fields{
-				"title": "無法讀取圖片:",
-			}).Error(err.Error())
-			return errors.New("無法讀取圖片:" + err.Error())
-		}
-		encodedImage := encodeImage(imageData)
-		imageID := fmt.Sprintf("img%d", index)
+	// imagePaths := []string{"body_bg.jpg", "dot_image.jpg", "header_bg.jpg", "image_1.jpg", "image_2.jpg", "image_3.jpg", "image_4.png", "image_5.png"} // 圖片路徑列表
+	// for index, imagePath := range imagePaths {
+	// 	imageData, err := ioutil.ReadFile("app/service/images/" + imagePath)
+	// 	if err != nil {
+	// 		middleware.Logger().WithFields(logrus.Fields{
+	// 			"title": "無法讀取圖片:",
+	// 		}).Error(err.Error())
+	// 		return errors.New("無法讀取圖片:" + err.Error())
+	// 	}
+	// 	encodedImage := encodeImage(imageData)
+	// 	imageID := fmt.Sprintf("img%d", index)
 
-		msg += "--boundary\n"
-		msg += "Content-Type: image/jpeg\n"
-		msg += "Content-Transfer-Encoding: base64\n"
-		msg += fmt.Sprintf("Content-ID: <%s>\n", imageID)
-		msg += "Content-Disposition: inline\n"
-		msg += encodedImage + "\n"
-	}
+	// 	msg += "--boundary\n"
+	// 	msg += "Content-Type: image/jpeg\n"
+	// 	msg += "Content-Transfer-Encoding: base64\n"
+	// 	msg += fmt.Sprintf("Content-ID: <%s>\n", imageID)
+	// 	msg += "Content-Disposition: inline\n"
+	// 	msg += encodedImage + "\n"
+	// }
 
 	err := smtp.SendMail(server+":"+port,
 		smtp.PlainAuth("", from, pass, server),

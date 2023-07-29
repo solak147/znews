@@ -1,6 +1,8 @@
 package config
 
 import (
+	"io/ioutil"
+	"net/http"
 	_ "znews/docs"
 
 	"znews/app/controller"
@@ -36,7 +38,7 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 	// 	panic("Something went wrong!")
 	// })
 
-	//r.GET("/image/:name", serveImage)
+	r.GET("/image/:name", serveImage)
 
 	r.Use(middleware.JWTAuthMiddleware())
 
@@ -102,15 +104,15 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 }
 
 // 直接存取圖片
-// func serveImage(c *gin.Context) {
-// 	name := c.Params.ByName("name")
-// 	imagePath := "app/service/images/" + name // 指定圖片檔案的路徑
+func serveImage(c *gin.Context) {
+	name := c.Params.ByName("name")
+	imagePath := "app/service/images/" + name // 指定圖片檔案的路徑
 
-// 	image, err := ioutil.ReadFile(imagePath)
-// 	if err != nil {
-// 		c.String(http.StatusInternalServerError, "Internal Server Error")
-// 		return
-// 	}
+	image, err := ioutil.ReadFile(imagePath)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Internal Server Error")
+		return
+	}
 
-// 	c.Data(http.StatusOK, "image/jpeg", image)
-// }
+	c.Data(http.StatusOK, "image/jpeg", image)
+}
