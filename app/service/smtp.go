@@ -40,7 +40,7 @@ func Send(title string, body string, to string) error {
 
 	imagePaths := []string{"body_bg.jpg", "dot_image.jpg", "header_bg.jpg", "image_1.jpg", "image_2.jpg", "image_3.jpg", "image_4.png", "image_5.png"} // 圖片路徑列表
 	for index, imagePath := range imagePaths {
-		htmlStr = strings.Replace(htmlStr, fmt.Sprintf("serimg%d", index), domain+"/"+imagePath, 1)
+		htmlStr = strings.Replace(htmlStr, fmt.Sprintf("serimg%d", index), domain+"/serimg/"+imagePath, 1)
 	}
 
 	msg := "From: " + from + "\n" +

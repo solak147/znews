@@ -81,7 +81,7 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl         
-
+      - ./app/service/images:/etc/nginx/images     
 networks:
   backend-bridge:
     driver: bridge
