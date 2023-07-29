@@ -38,6 +38,7 @@ services:
       - redis
     volumes:
     - ./logs/:/usr/local/go/src/znews/logs
+    - ./filemanager/:/usr/local/go/src/znews/filemanager
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
