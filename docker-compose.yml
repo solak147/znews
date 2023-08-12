@@ -1,4 +1,4 @@
-version: '3.5'
+version: "3.5"
 services:
   db:
     image: mysql #8.0.32-1.el8
@@ -17,11 +17,11 @@ services:
     container_name: redis
     image: redis:latest #7.0.9
     ports:
-    - "6379:6379"
+      - "6379:6379"
     networks:
       - backend-bridge
     restart: always
-    
+
   znews:
     container_name: znews
     ports:
@@ -37,8 +37,8 @@ services:
       - db
       - redis
     volumes:
-    - ./logs/:/usr/local/go/src/znews/logs
-    - ./filemanager/:/usr/local/go/src/znews/filemanager
+      - ./logs/:/usr/local/go/src/znews/logs
+      - ./filemanager/:/usr/local/go/src/znews/filemanager
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
@@ -56,7 +56,7 @@ services:
     ports:
       - 9200:9200
     networks:
-     - backend-bridge
+      - backend-bridge
 
   logstash:
     image: docker.elastic.co/logstash/logstash:7.12.0
@@ -76,14 +76,14 @@ services:
     image: nginx
     ports:
       - "81:81"
+      - "82:82"
       - "443:443"
     networks:
-      - backend-bridge  
+      - backend-bridge
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/ssl:/etc/nginx/ssl         
-      - ./app/service/images:/etc/nginx/images     
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./app/service/images:/etc/nginx/images
 networks:
   backend-bridge:
     driver: bridge
-
