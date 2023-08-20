@@ -39,12 +39,12 @@ func Send(title string, body string, to string) error {
 	htmlStr := strings.Replace(string(htmlContent), "xxxxxx", title, 1)
 
 	//TODO 加教學連結
-	htmlStr = strings.Replace(htmlStr, "soholink", domain, 1)
-	htmlStr = strings.Replace(htmlStr, "bosslink", domain, 1)
+	htmlStr = strings.Replace(htmlStr, "soholink", domain+":81", 1)
+	htmlStr = strings.Replace(htmlStr, "bosslink", domain+":81", 1)
 
 	imagePaths := []string{"body_bg.jpg", "dot_image.jpg", "header_bg.jpg", "image_1.jpg", "image_2.jpg", "image_3.jpg", "image_4.png", "image_5.png"} // 圖片路徑列表
 	for index, imagePath := range imagePaths {
-		htmlStr = strings.Replace(htmlStr, fmt.Sprintf("serimg%d", index), domain+"/serimg/"+imagePath, 1)
+		htmlStr = strings.Replace(htmlStr, fmt.Sprintf("serimg%d", index), domain+":81/serimg/"+imagePath, 1)
 	}
 
 	msg := "From: " + from + "\n" +

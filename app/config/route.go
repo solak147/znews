@@ -98,6 +98,12 @@ func CustomRouter(r *gin.Engine, m *persist.RedisStore) {
 
 	}
 
+	pay := r.Group("/pay")
+	{
+		pay.POST("/creditAll", controller.PayController().CreditAll)
+		pay.POST("/result", controller.PayController().Result)
+	}
+
 	url := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 
