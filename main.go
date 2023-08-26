@@ -73,13 +73,8 @@ func main() {
 		panic(err)
 	}
 
-	err2 := server.Run(":80")
-	if err2 != nil {
-		panic(err2)
-	}
-
 	// 启动HTTPS服务器
-	if err := server.RunTLS(":443", "server.crt", "server.key"); err != nil {
-		panic(err)
-	}
+	// if err := server.RunTLS(":443", "server.crt", "server.key"); err != nil {
+	// 	panic(err)
+	// }
 }

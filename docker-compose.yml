@@ -75,6 +75,7 @@ services:
   nginx:
     image: nginx
     ports:
+      - "80:80"
       - "81:81"
       - "82:82"
       - "443:443"
