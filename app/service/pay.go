@@ -80,10 +80,8 @@ func computeCheckMacValue(data url.Values) string {
     }
     sort.Strings(keys)
     query := ""
-    for _, k := range keys {
-        if data.Get(k) != "" {
-            query += fmt.Sprintf("%s=%s&", k, data.Get(k))
-        }
+    for _, k := range keys {   
+		query += fmt.Sprintf("%s=%s&", k, data.Get(k))      
     }
 
 	query = fmt.Sprintf("HashKey=%s&", hashKey) + query
