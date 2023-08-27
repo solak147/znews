@@ -147,14 +147,18 @@ func Result(c *gin.Context) error{
 		data.Set(param[0], param[1])	
     }
 
+	middleware.Logger().WithFields(logrus.Fields{
+		"title": "組合data",
+	}).Error(fmt.Sprintf("組合data: %v", data))
+
 	checkMacValue := computeCheckMacValue(data)
 
 	if(checkMacValue != RtncheckMacValue){
 		middleware.Logger().WithFields(logrus.Fields{
 			"title": "checkMacValue not same error",
-		}).Error(fmt.Sprintf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, RtncheckMacValue))
+		}).Error(fmt.Sprintf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, checkMacValue))
 
-		return fmt.Errorf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, RtncheckMacValue)
+		return fmt.Errorf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, checkMacValue)
 	}
 
 
