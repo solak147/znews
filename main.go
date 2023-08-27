@@ -48,7 +48,7 @@ func main() {
 	}
 	migrateErr := db.AutoMigrate(&model.User{}, &model.SohoSetting{}, &model.Casem{}, &model.Quote{}, &model.CaseCollect{},
 		&model.CaseFile{}, &model.SohoWork{}, &model.SerialNo{}, &model.MsgRecord{}, &model.SohoUrl{}, &model.CaseFlow{},
-	    &model.Product{})
+	    &model.Product{}, &model.Order{})
 	if migrateErr != nil {
 		return
 	}

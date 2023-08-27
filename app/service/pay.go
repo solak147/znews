@@ -91,7 +91,7 @@ func computeCheckMacValue(data url.Values) string {
 
 	middleware.Logger().WithFields(logrus.Fields{
 		"title": "fn computeCheckMacValue",
-	}).Error(fmt.Sprintf("fn computeCheckMacValue: %s", query))
+	}).Info(fmt.Sprintf("fn computeCheckMacValue: %s", query))
 
 	// 對字串進行 URL 編碼
 	query = url.QueryEscape(query)
@@ -135,7 +135,7 @@ func Result(c *gin.Context) error{
 	bodyStr := string(body)
 	middleware.Logger().WithFields(logrus.Fields{
 		"title": "receive pay result error",
-	}).Error(bodyStr)
+	}).Info(bodyStr)
 
 	data := url.Values{}
 	RtncheckMacValue := "" 
@@ -151,20 +151,41 @@ func Result(c *gin.Context) error{
 
 	middleware.Logger().WithFields(logrus.Fields{
 		"title": "組合data",
-	}).Error(fmt.Sprintf("組合data: %v", data))
+	}).Info(fmt.Sprintf("組合data: %v", data))
 
 	checkMacValue := computeCheckMacValue(data)
-
+	isCheck := "1"
 	if(checkMacValue != RtncheckMacValue){
 		middleware.Logger().WithFields(logrus.Fields{
 			"title": "checkMacValue not same error",
 		}).Error(fmt.Sprintf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, checkMacValue))
+		
+		isCheck = "0"
+	}
 
+	order := model.Order{
+		MerchantID: data.Get("MerchantID"),
+		MerchantTradeNo: data.Get("MerchantTradeNo"),
+		RtnCode: data.Get("RtnCode") ,
+		RtnMsg: data.Get("RtnMsg"),
+		TradeNo: data.Get("TradeNo"),
+		TradeAmt: data.Get("TradeAmt"),
+		PaymentDate: data.Get("PaymentDate"),
+		PaymentType: data.Get("PaymentType"),
+		PaymentTypeChargeFee: data.Get("PaymentTypeChargeFee"),
+		TradeDate: data.Get("TradeDate"),
+		SimulatePaid: data.Get("SimulatePaid"),
+		CheckMacValue: checkMacValue,
+		IsCheck: isCheck,
+	}
+
+	if err := dao.GormSession.Model(&model.MsgRecord{}).Create(&order).Error; err != nil {
+		return err
+	}
+
+	if(isCheck == "0"){
 		return fmt.Errorf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, checkMacValue)
 	}
 
-
 	return nil
-
- 
 }
