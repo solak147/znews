@@ -18,7 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func CreditAll(card string) (url.Values, error){
+func CreditAll(card string, account string) (url.Values, error){
 	domain := os.Getenv("DOMAIN")
 
 	product := model.Product{}
@@ -44,6 +44,9 @@ func CreditAll(card string) (url.Values, error){
 	data.Set("ClientBackURL", domain+":81/deposit")
 	data.Set("ChoosePayment", "Credit")
 	data.Set("EncryptType", "1")
+	data.Set("CustomField1",  product.Name)
+	data.Set("CustomField2",  account)
+	
 
 	// 計算 CheckMacValue
 	checkMacValue := computeCheckMacValue(data)
@@ -163,6 +166,7 @@ func Result(c *gin.Context) error{
 		isCheck = "0"
 	}
 
+	tx := dao.GormSession.Begin()
 	order := model.Order{
 		MerchantID: data.Get("MerchantID"),
 		MerchantTradeNo: data.Get("MerchantTradeNo"),
@@ -175,13 +179,36 @@ func Result(c *gin.Context) error{
 		PaymentTypeChargeFee: data.Get("PaymentTypeChargeFee"),
 		TradeDate: data.Get("TradeDate"),
 		SimulatePaid: data.Get("SimulatePaid"),
+		CustomField1: data.Get("CustomField1"),
+		CustomField2: data.Get("CustomField2"),
 		CheckMacValue: checkMacValue,
 		IsCheck: isCheck,
 	}
 
-	if err := dao.GormSession.Model(&model.Order{}).Create(&order).Error; err != nil {
+	if err := tx.Model(&model.Order{}).Create(&order).Error; err != nil {
+		tx.Rollback()
 		return err
 	}
+	
+	VipDate := time.Now()
+	switch(data.Get("CustomField1")){
+		case "monthCard":
+			VipDate = VipDate.AddDate(0, 1, 0)
+
+		case "yearCard":
+			VipDate = VipDate.AddDate(1, 0, 0)
+	}
+
+	user := model.User{
+		VipLevel: data.Get("CustomField1"),
+		VipDate: VipDate,
+		UpdatedAt: time.Now(),
+	}
+	if err := tx.Model(&model.User{}).Where("account=?", data.Get("CustomField2")).Updates(user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	tx.Commit()
 
 	if(isCheck == "0"){
 		return fmt.Errorf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, checkMacValue)

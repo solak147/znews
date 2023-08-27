@@ -29,6 +29,8 @@ type Order struct {
 	PaymentTypeChargeFee string `gorm:"size:3; not null; COMMENT:'交易手續費金額';" json:"PaymentTypeChargeFee"`
 	TradeDate string `gorm:"size:20; not null; COMMENT:'訂單成立時間 yyyy/MM/dd HH:mm:ss';" json:"TradeDate"` 
 	SimulatePaid string `gorm:"size:1; not null; COMMENT:'0：代表此交易非模擬付款。1：代表此交易為模擬付款';" json:"SimulatePaid"`
+	CustomField1 string `gorm:"size:10; not null; COMMENT:'產品名稱';" json:"CustomField1"`
+	CustomField2 string `gorm:"size:50; not null; COMMENT:'帳號';" json:"CustomField2"`
 	CheckMacValue string `gorm:"not null; COMMENT:'檢查碼';" json:"CheckMacValue"`
 	IsCheck string `gorm:"size:1; not null; COMMENT:'檢查碼比對正確';" json:"IsCheck"`
 

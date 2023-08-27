@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"znews/app/middleware"
 	"znews/app/model"
@@ -26,7 +27,8 @@ func PayController() PaysController {
 func (p PaysController) CreditAll(c *gin.Context) {
 	// 綠界金流的 API 位置
 	apiUrl := "https://payment-stage.ecpay.com.tw/Cashier/AioCheckOut/V5"
-	
+	account, _ := c.Get("account")
+
 	var form model.ProductForm
 	if err := c.ShouldBind(&form); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -36,7 +38,7 @@ func (p PaysController) CreditAll(c *gin.Context) {
 		return
 	}
 
-	param, err := service.CreditAll(form.Card)
+	param, err := service.CreditAll(form.Card, fmt.Sprintf("%v", account))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"code": -1,
