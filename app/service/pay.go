@@ -91,6 +91,10 @@ func computeCheckMacValue(data url.Values) string {
 
     query = strings.TrimRight(query, "&")
 
+	middleware.Logger().WithFields(logrus.Fields{
+		"title": "fn computeCheckMacValue",
+	}).Error(fmt.Sprintf("fn computeCheckMacValue: %s", query))
+
 	// 對字串進行 URL 編碼
 	query = url.QueryEscape(query)
 	query = strings.ToLower(query)
