@@ -179,7 +179,7 @@ func Result(c *gin.Context) error{
 		IsCheck: isCheck,
 	}
 
-	if err := dao.GormSession.Model(&model.MsgRecord{}).Create(&order).Error; err != nil {
+	if err := dao.GormSession.Model(&model.Order{}).Create(&order).Error; err != nil {
 		return err
 	}
 
