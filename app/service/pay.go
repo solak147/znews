@@ -46,7 +46,7 @@ func CreditAll(card string) (url.Values, error){
 	data.Set("EncryptType", "1")
 
 	// 計算 CheckMacValue
-	checkMacValue := computeCheckMacValue(data, "pwFHCqoQZGmho4w6", "EkRm7iFT261dpevs")
+	checkMacValue := computeCheckMacValue(data)
 	data.Set("CheckMacValue", checkMacValue)
 
 	// // 發送 POST 請求
@@ -70,7 +70,10 @@ func CreditAll(card string) (url.Values, error){
 }
 
 // 計算 CheckMacValue
-func computeCheckMacValue(data url.Values, hashKey, hashIV string) string {
+func computeCheckMacValue(data url.Values) string {
+	hashKey := os.Getenv("hashKey")
+	hashIV := os.Getenv("hashIV")
+
     keys := []string{}
     for k := range data {
         keys = append(keys, k)
@@ -126,11 +129,34 @@ func Result(c *gin.Context) error{
 	if err != nil {
 		return err
 	}
-	fmt.Println(string(body))
 
+	bodyStr := string(body)
 	middleware.Logger().WithFields(logrus.Fields{
 		"title": "receive pay result error",
-	}).Error(string(body))
+	}).Error(bodyStr)
+
+	data := url.Values{}
+	RtncheckMacValue := "" 
+	for _, part := range strings.Split(bodyStr, "&") {
+		param := strings.Split(part, "=")
+
+		if(param[0] == "CheckMacValue"){
+			RtncheckMacValue = param[1]
+			continue
+		}
+		data.Set(param[0], param[1])	
+    }
+
+	checkMacValue := computeCheckMacValue(data)
+
+	if(checkMacValue != RtncheckMacValue){
+		middleware.Logger().WithFields(logrus.Fields{
+			"title": "checkMacValue not same error",
+		}).Error(fmt.Sprintf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, RtncheckMacValue))
+
+		return fmt.Errorf("檢查馬不相同: 綠界回傳-%s, 商店-%s", RtncheckMacValue, RtncheckMacValue)
+	}
+
 
 	return nil
 
