@@ -40,7 +40,7 @@ func CreditAll(card string, account string) (url.Values, error){
 	data.Set("TotalAmount", product.Price)
 	data.Set("TradeDesc", "Buddha綠界金流信用卡交易")
 	data.Set("ItemName", product.ChiName)
-	data.Set("ReturnURL", "http://35.194.229.124/pay/result")
+	data.Set("ReturnURL", "http://34.80.85.54/pay/result")
 	data.Set("ClientBackURL", domain+":81/deposit")
 	data.Set("ChoosePayment", "Credit")
 	data.Set("EncryptType", "1")
