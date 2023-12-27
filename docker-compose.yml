@@ -1,76 +1,76 @@
 version: "3.5"
 services:
-  db:
-    image: mysql #8.0.32-1.el8
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: gorm
-    restart: always
-    volumes:
-      - ./mysql-data:/var/lib/mysql
-    networks:
-      - backend-bridge
+  # db:
+  #   image: mysql #8.0.32-1.el8
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: 123456
+  #     MYSQL_DATABASE: gorm
+  #   restart: always
+  #   volumes:
+  #     - ./mysql-data:/var/lib/mysql
+  #   networks:
+  #     - backend-bridge
 
-  redis:
-    container_name: redis
-    image: redis:latest #7.0.9
-    ports:
-      - "6379:6379"
-    networks:
-      - backend-bridge
-    restart: always
+  # redis:
+  #   container_name: redis
+  #   image: redis:latest #7.0.9
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - backend-bridge
+  #   restart: always
 
-  znews:
-    container_name: znews
-    ports:
-      - "8080:8080"
-    build:
-      context: ./
-      dockerfile: Dockerfile
-    command: ./main
-    restart: always
-    networks:
-      - backend-bridge
-    depends_on:
-      - db
-      - redis
-    volumes:
-      - ./logs/:/usr/local/go/src/znews/logs
-      - ./filemanager/:/usr/local/go/src/znews/filemanager
+  # znews:
+  #   container_name: znews
+  #   ports:
+  #     - "8080:8080"
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile
+  #   command: ./main
+  #   restart: always
+  #   networks:
+  #     - backend-bridge
+  #   depends_on:
+  #     - db
+  #     - redis
+  #   volumes:
+  #     - ./logs/:/usr/local/go/src/znews/logs
+  #     - ./filemanager/:/usr/local/go/src/znews/filemanager
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
-    container_name: elasticsearch
-    environment:
-      - node.name=elasticsearch
-      - discovery.type=single-node
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - ./es-data:/usr/share/elasticsearch/data
-    ports:
-      - 9200:9200
-    networks:
-      - backend-bridge
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.12.0
+  #   container_name: elasticsearch
+  #   environment:
+  #     - node.name=elasticsearch
+  #     - discovery.type=single-node
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ulimits:
+  #     memlock:
+  #       soft: -1
+  #       hard: -1
+  #   volumes:
+  #     - ./es-data:/usr/share/elasticsearch/data
+  #   ports:
+  #     - 9200:9200
+  #   networks:
+  #     - backend-bridge
 
-  logstash:
-    image: docker.elastic.co/logstash/logstash:7.12.0
-    container_name: logstash
-    volumes:
-      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
-      - ./mysql-connector-java-8.0.30.jar:/usr/share/logstash/logstash-core/lib/jars/mysql-connector-java-8.0.30.jar
-    environment:
-      - "XPACK_MONITORING_ENABLED=false"
-    ports:
-      - 5000:5000
-      - 9600:9600
-    networks:
-      - backend-bridge
+  # logstash:
+  #   image: docker.elastic.co/logstash/logstash:7.12.0
+  #   container_name: logstash
+  #   volumes:
+  #     - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+  #     - ./mysql-connector-java-8.0.30.jar:/usr/share/logstash/logstash-core/lib/jars/mysql-connector-java-8.0.30.jar
+  #   environment:
+  #     - "XPACK_MONITORING_ENABLED=false"
+  #   ports:
+  #     - 5000:5000
+  #     - 9600:9600
+  #   networks:
+  #     - backend-bridge
 
   nginx:
     image: nginx
@@ -78,12 +78,14 @@ services:
       - "80:80"
       - "81:81"
       - "82:82"
+      - "88:88"
       - "443:443"
     networks:
       - backend-bridge
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/dist:/etc/nginx/dist
       - ./app/service/images:/etc/nginx/images
 networks:
   backend-bridge:
